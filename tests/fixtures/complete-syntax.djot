@@ -57,6 +57,14 @@ Plain code block
 with multiple lines
 ```
 
+~~~
+Tilde code block
+also valid syntax
+~~~
+
+```
+```
+
 ```javascript
 // JavaScript code block
 function hello() {
@@ -74,6 +82,12 @@ def greet(name):
 // PHP starting at line 10
 <?php
 echo "Hello from PHP";
+```
+
+``` =html
+<div class="raw-html">
+  <p>Raw HTML block</p>
+</div>
 ```
 
 ---
@@ -146,6 +160,18 @@ echo "Hello from PHP";
 | Cell 1   | Cell 2   | Cell 3   |
 | More     | Data     | Here     |
 
+Simplest table:
+
+| a |
+
+Multiple alignment rows:
+
+| a | b |
+|:-|---:|
+| c | d |
+|-:|:-:|
+| e | f |
+
 ---
 
 ## Div Blocks
@@ -204,6 +230,14 @@ This is {^braced superscript^} text.
 
 This is {~braced subscript~} text.
 
+Intraword: foo*bar*baz and hello_world_test.
+
+Unicode spaces: * spaced strong * and _ spaced emphasis _.
+
+Nested: *_strong and emphasized_* text.
+
+Multiple: *strong* and _emphasis_ in *same* line.
+
 ---
 
 ## Spans with Attributes
@@ -213,6 +247,12 @@ This is {~braced subscript~} text.
 [Span with ID]{#my-id}
 
 [Span with multiple]{.class1 .class2 #span-id key="value"}
+
+Word with attribute: hello{.greeting}
+
+Attribute with escaped value: text{key="\*escaped\*"}
+
+Nested span: [outer [inner]{.inner}]{.outer}
 
 ---
 
@@ -249,6 +289,10 @@ Here's a :heart: symbol.
 And a :warning: symbol.
 
 Custom :custom_symbol: here.
+
+Emoji-style: :+1: :scream: :100:
+
+Adjacent: :ice:scream: (first is symbol, second is not)
 
 ---
 
