@@ -1,5 +1,7 @@
 # Djot Grammars
 
+[![Tests](https://github.com/php-collective/djot-grammars/actions/workflows/test.yml/badge.svg)](https://github.com/php-collective/djot-grammars/actions/workflows/test.yml)
+
 Syntax highlighting grammars for the [Djot](https://djot.net) markup language.
 
 ## Included Grammars
@@ -199,6 +201,19 @@ Download the grammar files directly from this repository.
 | Used by | Shiki, VS Code, Phiki | highlight.js | Prism.js | Neovim, Helix |
 | Themes | VS Code themes | 90+ | 8+ | Editor themes |
 | Extensible | Limited | Some | Extensive | Yes |
+
+---
+
+## Testing
+
+Run the test suite to validate all grammars:
+
+```bash
+npm run test:install  # Install test dependencies
+npm test              # Run grammar tests
+```
+
+The test suite validates TextMate, highlight.js, and Prism.js grammars against a comprehensive Djot syntax fixture covering all language elements.
 
 ---
 
