@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Syntax highlighting grammars for the Djot markup language",
   "main": "index.js",
+  "scripts": {
+    "test": "node tests/grammar-test.js",
+    "test:install": "npm install --save-dev vscode-textmate vscode-oniguruma highlight.js prismjs"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/php-collective/djot-grammars.git"
@@ -33,5 +37,11 @@
     "./textmate/djot.tmLanguage.json": "./textmate/djot.tmLanguage.json",
     "./highlightjs/djot.js": "./highlightjs/djot.js",
     "./prismjs/djot.js": "./prismjs/djot.js"
+  },
+  "devDependencies": {
+    "highlight.js": "^11.11.1",
+    "prismjs": "^1.30.0",
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.3.2"
   }
 }
