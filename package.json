@@ -1,0 +1,37 @@
+{
+  "name": "djot-grammars",
+  "version": "1.0.0",
+  "description": "Syntax highlighting grammars for the Djot markup language",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/php-collective/djot-grammars.git"
+  },
+  "keywords": [
+    "djot",
+    "syntax-highlighting",
+    "grammar",
+    "textmate",
+    "highlight.js",
+    "prism",
+    "shiki"
+  ],
+  "author": "php-collective",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/php-collective/djot-grammars/issues"
+  },
+  "homepage": "https://github.com/php-collective/djot-grammars#readme",
+  "files": [
+    "textmate/",
+    "highlightjs/",
+    "prismjs/",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    "./textmate/djot.tmLanguage.json": "./textmate/djot.tmLanguage.json",
+    "./highlightjs/djot.js": "./highlightjs/djot.js",
+    "./prismjs/djot.js": "./prismjs/djot.js"
+  }
+}

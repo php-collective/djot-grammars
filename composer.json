@@ -1,0 +1,23 @@
+{
+    "name": "php-collective/djot-grammars",
+    "description": "Syntax highlighting grammars for the Djot markup language",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "php-collective",
+            "homepage": "https://github.com/php-collective"
+        }
+    ],
+    "require": {
+        "php": ">=7.4"
+    },
+    "homepage": "https://github.com/php-collective/djot-grammars",
+    "keywords": [
+        "djot",
+        "syntax-highlighting",
+        "grammar",
+        "textmate",
+        "phiki"
+    ]
+}
