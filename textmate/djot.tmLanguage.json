@@ -345,9 +345,9 @@
       }
     },
     "abbreviation-definition": {
-      "comment": "Abbreviation definition *[ABBR]: definition (can span multiple indented lines)",
+      "comment": "Abbreviation definition *[ABBR]: definition (with optional indented continuation)",
       "begin": "^(\\*\\[)([^\\]]+)(\\])(:)\\s*",
-      "end": "^(?!\\s)",
+      "while": "^\\s+",
       "beginCaptures": {
         "1": { "name": "punctuation.definition.abbreviation.begin.djot" },
         "2": { "name": "entity.name.abbreviation.djot" },
