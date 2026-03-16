@@ -57,9 +57,10 @@
         };
 
         // Strong: *text* - not in middle of words, can contain emphasis
+        // Excludes *[ which is abbreviation definition syntax
         const STRONG = {
             className: 'strong',
-            begin: /(?<!\w)\*(?!\s)/,
+            begin: /(?<!\w)\*(?![\s\[])/,
             end: /\*(?!\w)/,
             relevance: 0,
             contains: [EMPHASIS],

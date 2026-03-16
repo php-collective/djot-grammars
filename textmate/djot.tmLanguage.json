@@ -641,8 +641,8 @@
           ]
         },
         {
-          "comment": "Strong *text* - not in middle of words",
-          "begin": "(?<![\\w])(\\*)(?=\\S)",
+          "comment": "Strong *text* - not in middle of words, excludes *[ (abbreviation syntax)",
+          "begin": "(?<![\\w])(\\*)(?=[^\\s\\[])",
           "end": "(\\*)(?![\\w])",
           "beginCaptures": {
             "1": { "name": "punctuation.definition.bold.begin.djot" }
