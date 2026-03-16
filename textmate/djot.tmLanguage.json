@@ -345,16 +345,31 @@
       }
     },
     "abbreviation-definition": {
-      "comment": "Abbreviation definition *[ABBR]: definition (with optional indented continuation)",
-      "begin": "^(\\*\\[)([^\\]]+)(\\])(:)\\s*",
-      "while": "^\\s+",
-      "beginCaptures": {
-        "1": { "name": "punctuation.definition.abbreviation.begin.djot" },
-        "2": { "name": "entity.name.abbreviation.djot" },
-        "3": { "name": "punctuation.definition.abbreviation.end.djot" },
-        "4": { "name": "punctuation.separator.definition.djot" }
-      },
-      "contentName": "string.unquoted.abbreviation.definition.djot"
+      "patterns": [
+        {
+          "comment": "Single-line abbreviation definition *[ABBR]: definition",
+          "match": "^(\\*\\[)([^\\]]+)(\\])(:)\\s*(.+)$",
+          "captures": {
+            "1": { "name": "punctuation.definition.abbreviation.begin.djot" },
+            "2": { "name": "entity.name.abbreviation.djot" },
+            "3": { "name": "punctuation.definition.abbreviation.end.djot" },
+            "4": { "name": "punctuation.separator.definition.djot" },
+            "5": { "name": "string.unquoted.abbreviation.definition.djot" }
+          }
+        },
+        {
+          "comment": "Multi-line abbreviation definition with indented continuation",
+          "begin": "^(\\*\\[)([^\\]]+)(\\])(:)\\s*",
+          "while": "^\\s+",
+          "beginCaptures": {
+            "1": { "name": "punctuation.definition.abbreviation.begin.djot" },
+            "2": { "name": "entity.name.abbreviation.djot" },
+            "3": { "name": "punctuation.definition.abbreviation.end.djot" },
+            "4": { "name": "punctuation.separator.definition.djot" }
+          },
+          "contentName": "string.unquoted.abbreviation.definition.djot"
+        }
+      ]
     },
     "caption": {
       "comment": "Caption for images, blockquotes, code blocks, etc.",
