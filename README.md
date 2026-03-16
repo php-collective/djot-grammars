@@ -225,6 +225,23 @@ Contributions are welcome! Please ensure any changes maintain compatibility with
 
 MIT License - see [LICENSE](LICENSE) for details.
 
+## Demos
+
+### CodeMirror 6 Editor
+
+**Location:** `demo/codemirror/`
+
+A fully functional browser-based Djot editor with:
+
+- Syntax highlighting using CodeMirror 6's StreamLanguage
+- Live preview powered by djot.js
+- Dark theme optimized for readability
+- Zero build step (runs via ES modules and CDN)
+
+See [demo/codemirror/README.md](demo/codemirror/README.md) for usage instructions.
+
+---
+
 ## Related Projects
 
 - [Djot](https://djot.net) - The Djot markup language

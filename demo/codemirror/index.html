@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Djot CodeMirror Editor Demo</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            margin: 0 0 10px 0;
+            font-size: 1.8rem;
+        }
+        .subtitle {
+            color: #888;
+            margin-bottom: 20px;
+        }
+        .subtitle a {
+            color: #4db5ff;
+        }
+        .editor-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            height: calc(100vh - 140px);
+        }
+        .panel {
+            background: #16213e;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .panel-header {
+            background: #0f3460;
+            padding: 10px 15px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #1a1a2e;
+        }
+        .panel-content {
+            flex: 1;
+            overflow: auto;
+        }
+        #preview {
+            padding: 20px;
+            line-height: 1.6;
+        }
+        #preview h1, #preview h2, #preview h3, #preview h4, #preview h5, #preview h6 {
+            margin-top: 0;
+            color: #e94560;
+        }
+        #preview code {
+            background: #0f3460;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+        }
+        #preview pre {
+            background: #0f3460;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+        #preview pre code {
+            background: none;
+            padding: 0;
+        }
+        #preview blockquote {
+            border-left: 4px solid #e94560;
+            margin: 0;
+            padding-left: 15px;
+            color: #aaa;
+        }
+        #preview a {
+            color: #4db5ff;
+        }
+        #preview table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        #preview th, #preview td {
+            border: 1px solid #0f3460;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        #preview th {
+            background: #0f3460;
+        }
+        #preview mark {
+            background: #e9456066;
+            color: #fff;
+            padding: 1px 4px;
+            border-radius: 2px;
+        }
+        #preview sup {
+            color: #4db5ff;
+        }
+        #preview sub {
+            color: #4db5ff;
+        }
+        #preview del {
+            color: #888;
+        }
+        #preview ins {
+            color: #4ade80;
+            text-decoration: none;
+            border-bottom: 1px solid #4ade80;
+        }
+        .cm-editor {
+            height: 100%;
+            font-size: 14px;
+        }
+        .cm-scroller {
+            font-family: 'Fira Code', 'JetBrains Mono', monospace;
+        }
+        /* Djot syntax highlighting */
+        .cm-djot-heading { color: #e94560; font-weight: bold; }
+        .cm-djot-emphasis { color: #fbbf24; font-style: italic; }
+        .cm-djot-strong { color: #fb923c; font-weight: bold; }
+        .cm-djot-code { color: #4ade80; }
+        .cm-djot-link { color: #4db5ff; }
+        .cm-djot-url { color: #818cf8; }
+        .cm-djot-list { color: #f472b6; }
+        .cm-djot-blockquote { color: #94a3b8; }
+        .cm-djot-hr { color: #64748b; }
+        .cm-djot-highlight { background: #e9456033; }
+        .cm-djot-strikethrough { color: #64748b; text-decoration: line-through; }
+        .cm-djot-insert { color: #4ade80; }
+        .cm-djot-superscript { color: #c084fc; }
+        .cm-djot-subscript { color: #c084fc; }
+        .cm-djot-math { color: #2dd4bf; }
+        .cm-djot-attribute { color: #fb7185; }
+        .cm-djot-comment { color: #64748b; font-style: italic; }
+        .cm-djot-footnote { color: #a78bfa; }
+        .cm-djot-table { color: #38bdf8; }
+
+        @media (max-width: 900px) {
+            .editor-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            .panel {
+                height: 50vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Djot Editor</h1>
+        <p class="subtitle">
+            CodeMirror 6 with Djot syntax highlighting |
+            Live preview powered by <a href="https://github.com/jgm/djot.js">djot.js</a> |
+            Part of <a href="https://github.com/php-collective/djot-grammars">djot-grammars</a>
+        </p>
+
+        <div class="editor-container">
+            <div class="panel">
+                <div class="panel-header">Editor (Djot source)</div>
+                <div class="panel-content" id="editor"></div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">Preview (HTML output)</div>
+                <div class="panel-content" id="preview"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "@codemirror/state": "https://esm.sh/@codemirror/state@6",
+            "@codemirror/view": "https://esm.sh/@codemirror/view@6",
+            "@codemirror/language": "https://esm.sh/@codemirror/language@6",
+            "@codemirror/commands": "https://esm.sh/@codemirror/commands@6",
+            "@codemirror/search": "https://esm.sh/@codemirror/search@6",
+            "@codemirror/autocomplete": "https://esm.sh/@codemirror/autocomplete@6",
+            "@codemirror/lint": "https://esm.sh/@codemirror/lint@6",
+            "@lezer/common": "https://esm.sh/@lezer/common@1",
+            "@lezer/highlight": "https://esm.sh/@lezer/highlight@1",
+            "@djot/djot": "https://esm.sh/@djot/djot@0"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import { EditorState } from '@codemirror/state';
+        import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, drawSelection, rectangularSelection } from '@codemirror/view';
+        import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
+        import { StreamLanguage } from '@codemirror/language';
+        import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
+        import * as djot from '@djot/djot';
+
+        // Djot StreamLanguage parser
+        const djotLanguage = StreamLanguage.define({
+            name: 'djot',
+
+            startState() {
+                return {
+                    inCodeBlock: false,
+                    codeBlockFence: null,
+                    inMath: false,
+                };
+            },
+
+            token(stream, state) {
+                // Code blocks
+                if (state.inCodeBlock) {
+                    if (stream.match(state.codeBlockFence)) {
+                        state.inCodeBlock = false;
+                        state.codeBlockFence = null;
+                        return 'djot-code';
+                    }
+                    stream.skipToEnd();
+                    return 'djot-code';
+                }
+
+                // Start of code block
+                if (stream.match(/^(`{3,}|~{3,})/)) {
+                    state.inCodeBlock = true;
+                    state.codeBlockFence = new RegExp('^' + stream.current());
+                    stream.skipToEnd();
+                    return 'djot-code';
+                }
+
+                // Start of line checks
+                if (stream.sol()) {
+                    // Headings
+                    if (stream.match(/^#{1,6}\s/)) {
+                        stream.skipToEnd();
+                        return 'djot-heading';
+                    }
+
+                    // Blockquote
+                    if (stream.match(/^>\s?/)) {
+                        return 'djot-blockquote';
+                    }
+
+                    // Horizontal rule
+                    if (stream.match(/^(\*{3,}|-{3,}|_{3,})\s*$/)) {
+                        return 'djot-hr';
+                    }
+
+                    // List items
+                    if (stream.match(/^(\s*)([-*+]|\d+[.)])\s/)) {
+                        return 'djot-list';
+                    }
+
+                    // Table
+                    if (stream.match(/^\|/)) {
+                        return 'djot-table';
+                    }
+
+                    // Definition list
+                    if (stream.match(/^:\s/)) {
+                        return 'djot-list';
+                    }
+                }
+
+                // Comments {% ... %}
+                if (stream.match(/{%/)) {
+                    while (!stream.eol()) {
+                        if (stream.match(/%}/)) break;
+                        stream.next();
+                    }
+                    return 'djot-comment';
+                }
+
+                // Attributes {.class #id key=value}
+                if (stream.match(/{[.#][^}]*}|{[a-z]+=("[^"]*"|[^\s}]*)[^}]*}/i)) {
+                    return 'djot-attribute';
+                }
+
+                // Display math $$...$$
+                if (stream.match(/\$\$/)) {
+                    while (!stream.eol()) {
+                        if (stream.match(/\$\$/)) break;
+                        stream.next();
+                    }
+                    return 'djot-math';
+                }
+
+                // Inline math $...$
+                if (stream.match(/\$(?!\s)/)) {
+                    while (!stream.eol()) {
+                        if (stream.match(/(?<!\s)\$/)) break;
+                        stream.next();
+                    }
+                    return 'djot-math';
+                }
+
+                // Footnote reference [^name]
+                if (stream.match(/\[\^[^\]]+\]/)) {
+                    return 'djot-footnote';
+                }
+
+                // Links [text](url) or [text][ref]
+                if (stream.match(/\[[^\]]*\]\([^)]*\)/)) {
+                    return 'djot-link';
+                }
+                if (stream.match(/\[[^\]]*\]\[[^\]]*\]/)) {
+                    return 'djot-link';
+                }
+
+                // Autolinks <url>
+                if (stream.match(/<https?:\/\/[^>]+>/)) {
+                    return 'djot-url';
+                }
+
+                // Inline code `...`
+                if (stream.match(/`[^`]+`/)) {
+                    return 'djot-code';
+                }
+
+                // Highlight {=text=}
+                if (stream.match(/{=/)) {
+                    while (!stream.eol()) {
+                        if (stream.match(/=}/)) break;
+                        stream.next();
+                    }
+                    return 'djot-highlight';
+                }
+
+                // Strikethrough {-text-}
+                if (stream.match(/{-/)) {
+                    while (!stream.eol()) {
+                        if (stream.match(/-}/)) break;
+                        stream.next();
+                    }
+                    return 'djot-strikethrough';
+                }
+
+                // Insert {+text+}
+                if (stream.match(/{\+/)) {
+                    while (!stream.eol()) {
+                        if (stream.match(/\+}/)) break;
+                        stream.next();
+                    }
+                    return 'djot-insert';
+                }
+
+                // Superscript ^text^
+                if (stream.match(/\^[^^]+\^/)) {
+                    return 'djot-superscript';
+                }
+
+                // Subscript ~text~
+                if (stream.match(/~[^~]+~/)) {
+                    return 'djot-subscript';
+                }
+
+                // Strong *text*
+                if (stream.match(/\*[^*]+\*/)) {
+                    return 'djot-strong';
+                }
+
+                // Emphasis _text_
+                if (stream.match(/_[^_]+_/)) {
+                    return 'djot-emphasis';
+                }
+
+                // Table cell separator
+                if (stream.match(/\|/)) {
+                    return 'djot-table';
+                }
+
+                stream.next();
+                return null;
+            },
+        });
+
+        // Dark theme
+        const darkTheme = EditorView.theme({
+            '&': {
+                backgroundColor: '#16213e',
+                color: '#e2e8f0',
+            },
+            '.cm-content': {
+                caretColor: '#e94560',
+                padding: '10px 0',
+            },
+            '.cm-cursor': {
+                borderLeftColor: '#e94560',
+            },
+            '.cm-activeLine': {
+                backgroundColor: '#1e3a5f33',
+            },
+            '.cm-activeLineGutter': {
+                backgroundColor: '#1e3a5f33',
+            },
+            '.cm-gutters': {
+                backgroundColor: '#0f3460',
+                color: '#64748b',
+                border: 'none',
+            },
+            '.cm-selectionBackground': {
+                backgroundColor: '#e9456044 !important',
+            },
+            '&.cm-focused .cm-selectionBackground': {
+                backgroundColor: '#e9456044 !important',
+            },
+            '.cm-line': {
+                padding: '0 15px',
+            },
+        }, { dark: true });
+
+        // Sample Djot content
+        const sampleDjot = `# Welcome to Djot!
+
+This is a demo of *CodeMirror 6* with _Djot_ syntax highlighting.
+
+## Features Supported
+
+### Inline Formatting
+
+- *Strong text* using asterisks
+- _Emphasis_ using underscores
+- \`Inline code\` with backticks
+- {=Highlighted text=} with curly braces
+- {-Deleted text-} for strikethrough
+- {+Inserted text+} for additions
+- Superscript: H^2^O
+- Subscript: CO~2~
+
+### Links and References
+
+Check out [Djot documentation](https://djot.net) for more info.
+
+Here's an autolink: <https://github.com/jgm/djot>
+
+### Math Support
+
+Inline math: $E = mc^2$
+
+Display math:
+
+$$
+\\int_{-\\infty}^{\\infty} e^{-x^2} dx = \\sqrt{\\pi}
+$$
+
+### Code Blocks
+
+\`\`\`php
+<?php
+// PHP example with djot-php
+use PhpCollective\\Djot\\Parser;
+
+$parser = new Parser();
+$html = $parser->render('Hello _world_!');
+\`\`\`
+
+### Tables
+
+| Feature | Status |
+|---------|--------|
+| Headings | Yes |
+| Emphasis | Yes |
+| Code | Yes |
+| Tables | Yes |
+
+### Blockquotes
+
+> Djot is a light markup syntax that derives most of its features
+> from CommonMark, but fixes things that make CommonMark complex.
+
+### Lists
+
+1. First item
+2. Second item
+   - Nested bullet
+   - Another nested item
+3. Third item
+
+### Footnotes
+
+Here is a footnote reference[^1].
+
+[^1]: This is the footnote content.
+
+### Attributes
+
+{.warning}
+This paragraph has a class attribute.
+
+### Comments
+
+{% This is a comment that won't appear in output %}
+
+---
+
+_Powered by djot-php and djot-grammars_
+`;
+
+        // Initialize editor
+        const editor = new EditorView({
+            state: EditorState.create({
+                doc: sampleDjot,
+                extensions: [
+                    lineNumbers(),
+                    highlightActiveLine(),
+                    highlightActiveLineGutter(),
+                    drawSelection(),
+                    rectangularSelection(),
+                    highlightSelectionMatches(),
+                    history(),
+                    djotLanguage,
+                    darkTheme,
+                    keymap.of([
+                        ...defaultKeymap,
+                        ...historyKeymap,
+                        ...searchKeymap,
+                        indentWithTab,
+                    ]),
+                    EditorView.updateListener.of((update) => {
+                        if (update.docChanged) {
+                            updatePreview(update.state.doc.toString());
+                        }
+                    }),
+                ],
+            }),
+            parent: document.getElementById('editor'),
+        });
+
+        // Update preview
+        function updatePreview(source) {
+            try {
+                const doc = djot.parse(source);
+                const html = djot.renderHTML(doc);
+                document.getElementById('preview').innerHTML = html;
+            } catch (e) {
+                document.getElementById('preview').innerHTML = `<pre style="color: #ef4444;">Error: ${e.message}</pre>`;
+            }
+        }
+
+        // Initial render
+        updatePreview(sampleDjot);
+    </script>
+</body>
+</html>
