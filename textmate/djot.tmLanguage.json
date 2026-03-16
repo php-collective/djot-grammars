@@ -90,9 +90,9 @@
       "contentName": "markup.raw.block.djot"
     },
     "codeblock": {
-      "comment": "Fenced code block - allows optional indentation",
-      "begin": "^(\\s*)(`{3,})([a-zA-Z0-9_+-]*)?(\\s*\\{[^}]*\\})?\\s*$",
-      "end": "^\\s*(`{3,})\\s*$",
+      "comment": "Fenced code block - backticks or tildes, allows optional indentation",
+      "begin": "^(\\s*)([`~]{3,})([a-zA-Z0-9_+-]*)?(\\s*\\{[^}]*\\})?\\s*$",
+      "end": "^\\s*([`~]{3,})\\s*$",
       "beginCaptures": {
         "2": { "name": "string.other.begin.code.fence.djot" },
         "3": { "name": "entity.name.function.language.djot" },
@@ -236,10 +236,11 @@
       ]
     },
     "list": {
+      "comment": "List markers: bullet (-*+), decimal (1. 1)), alpha (a. a) A. A)), roman (i. i) I. I)), enclosed ((1) (a) (i) (I))",
       "patterns": [
         {
           "comment": "Task list item - checked",
-          "match": "^(\\s*)(-|\\*|\\+|\\d+\\.|\\d+\\))\\s+(\\[[xX]\\])\\s+(.*)$",
+          "match": "^(\\s*)(-|\\*|\\+|\\d+[.)]|[a-zA-Z][.)]|[ivxlcdmIVXLCDM]+[.)]|\\([\\da-zA-Z]+\\)|\\([ivxlcdmIVXLCDM]+\\))\\s+(\\[[xX]\\])\\s+(.*)$",
           "captures": {
             "2": { "name": "keyword.operator.list.marker.djot" },
             "3": { "name": "markup.inserted.checkbox.checked.djot" },
@@ -248,7 +249,7 @@
         },
         {
           "comment": "Task list item - unchecked",
-          "match": "^(\\s*)(-|\\*|\\+|\\d+\\.|\\d+\\))\\s+(\\[[ _]\\])\\s+(.*)$",
+          "match": "^(\\s*)(-|\\*|\\+|\\d+[.)]|[a-zA-Z][.)]|[ivxlcdmIVXLCDM]+[.)]|\\([\\da-zA-Z]+\\)|\\([ivxlcdmIVXLCDM]+\\))\\s+(\\[[ _]\\])\\s+(.*)$",
           "captures": {
             "2": { "name": "keyword.operator.list.marker.djot" },
             "3": { "name": "markup.deleted.checkbox.unchecked.djot" },
@@ -256,8 +257,8 @@
           }
         },
         {
-          "comment": "Unordered/ordered list item",
-          "match": "^(\\s*)(-|\\*|\\+|\\d+\\.|\\d+\\))\\s+(.*)$",
+          "comment": "Unordered/ordered list item - bullet, decimal, alpha, roman, enclosed",
+          "match": "^(\\s*)(-|\\*|\\+|\\d+[.)]|[a-zA-Z][.)]|[ivxlcdmIVXLCDM]+[.)]|\\([\\da-zA-Z]+\\)|\\([ivxlcdmIVXLCDM]+\\))\\s+(.*)$",
           "captures": {
             "2": { "name": "keyword.operator.list.marker.djot" },
             "3": { "patterns": [{ "include": "#inline" }] }
@@ -620,39 +621,83 @@
       }
     },
     "strong": {
-      "comment": "Strong *text* - not in middle of words",
-      "begin": "(?<![\\w])(\\*)(?=\\S)",
-      "end": "(\\*)(?![\\w])",
-      "beginCaptures": {
-        "1": { "name": "punctuation.definition.bold.begin.djot" }
-      },
-      "endCaptures": {
-        "1": { "name": "punctuation.definition.bold.end.djot" }
-      },
-      "name": "markup.bold.djot",
       "patterns": [
-        { "include": "#emphasis" },
-        { "include": "#inline-code" },
-        { "include": "#link" },
-        { "include": "#image" }
+        {
+          "comment": "Forced strong {*text*}",
+          "begin": "(\\{\\*)(?=\\S)",
+          "end": "(\\*\\})",
+          "beginCaptures": {
+            "1": { "name": "punctuation.definition.bold.begin.djot" }
+          },
+          "endCaptures": {
+            "1": { "name": "punctuation.definition.bold.end.djot" }
+          },
+          "name": "markup.bold.djot",
+          "patterns": [
+            { "include": "#emphasis" },
+            { "include": "#inline-code" },
+            { "include": "#link" },
+            { "include": "#image" }
+          ]
+        },
+        {
+          "comment": "Strong *text* - not in middle of words",
+          "begin": "(?<![\\w])(\\*)(?=\\S)",
+          "end": "(\\*)(?![\\w])",
+          "beginCaptures": {
+            "1": { "name": "punctuation.definition.bold.begin.djot" }
+          },
+          "endCaptures": {
+            "1": { "name": "punctuation.definition.bold.end.djot" }
+          },
+          "name": "markup.bold.djot",
+          "patterns": [
+            { "include": "#emphasis" },
+            { "include": "#inline-code" },
+            { "include": "#link" },
+            { "include": "#image" }
+          ]
+        }
       ]
     },
     "emphasis": {
-      "comment": "Emphasis _text_ - not in middle of words",
-      "begin": "(?<![\\w])(_)(?=\\S)",
-      "end": "(_)(?![\\w])",
-      "beginCaptures": {
-        "1": { "name": "punctuation.definition.italic.begin.djot" }
-      },
-      "endCaptures": {
-        "1": { "name": "punctuation.definition.italic.end.djot" }
-      },
-      "name": "markup.italic.djot",
       "patterns": [
-        { "include": "#strong" },
-        { "include": "#inline-code" },
-        { "include": "#link" },
-        { "include": "#image" }
+        {
+          "comment": "Forced emphasis {_text_}",
+          "begin": "(\\{_)(?=\\S)",
+          "end": "(_\\})",
+          "beginCaptures": {
+            "1": { "name": "punctuation.definition.italic.begin.djot" }
+          },
+          "endCaptures": {
+            "1": { "name": "punctuation.definition.italic.end.djot" }
+          },
+          "name": "markup.italic.djot",
+          "patterns": [
+            { "include": "#strong" },
+            { "include": "#inline-code" },
+            { "include": "#link" },
+            { "include": "#image" }
+          ]
+        },
+        {
+          "comment": "Emphasis _text_ - not in middle of words",
+          "begin": "(?<![\\w])(_)(?=\\S)",
+          "end": "(_)(?![\\w])",
+          "beginCaptures": {
+            "1": { "name": "punctuation.definition.italic.begin.djot" }
+          },
+          "endCaptures": {
+            "1": { "name": "punctuation.definition.italic.end.djot" }
+          },
+          "name": "markup.italic.djot",
+          "patterns": [
+            { "include": "#strong" },
+            { "include": "#inline-code" },
+            { "include": "#link" },
+            { "include": "#image" }
+          ]
+        }
       ]
     },
     "highlight": {

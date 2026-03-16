@@ -31,12 +31,29 @@
             relevance: 10,
         };
 
+        // Forced emphasis: {_text_}
+        const FORCED_EMPHASIS = {
+            className: 'emphasis',
+            begin: /\{_(?!\s)/,
+            end: /_\}/,
+            relevance: 5,
+        };
+
         // Emphasis: _text_ - not in middle of words (defined first for nesting)
         const EMPHASIS = {
             className: 'emphasis',
             begin: /(?<!\w)_(?!\s)/,
             end: /_(?!\w)/,
             relevance: 0,
+        };
+
+        // Forced strong: {*text*}
+        const FORCED_STRONG = {
+            className: 'strong',
+            begin: /\{\*(?!\s)/,
+            end: /\*\}/,
+            relevance: 5,
+            contains: [FORCED_EMPHASIS, EMPHASIS],
         };
 
         // Strong: *text* - not in middle of words, can contain emphasis
@@ -207,17 +224,17 @@
             relevance: 0,
         };
 
-        // Numbered list items: 1. or 1)
+        // Numbered list items: decimal (1.), alpha (a. A.), roman (i. I.), enclosed ((1) (a) (i))
         const LIST_NUMBER = {
             className: 'bullet',
-            begin: /^[ \t]*\d+[.)](?=\s)/,
+            begin: /^[ \t]*(\d+[.)]|[a-zA-Z][.)]|[ivxlcdmIVXLCDM]+[.)]|\([\da-zA-Z]+\)|\([ivxlcdmIVXLCDM]+\))(?=\s)/,
             relevance: 0,
         };
 
-        // Task list items: - [ ] or - [x]
+        // Task list items: - [ ] or - [x] or - [_]
         const TASK_LIST = {
             className: 'bullet',
-            begin: /^[ \t]*[-*+]\s\[[ xX]\]/,
+            begin: /^[ \t]*[-*+]\s\[[ xX_]\]/,
             relevance: 5,
         };
 
@@ -229,17 +246,17 @@
             relevance: 5,
         };
 
-        // Code fence opening: ``` with optional language or =format
+        // Code fence opening: ``` or ~~~ with optional language or =format
         const CODE_FENCE_START = {
             className: 'keyword',
-            begin: /^`{3,}\s*=?[a-zA-Z]*$/,
+            begin: /^[`~]{3,}\s*=?[a-zA-Z]*$/,
             relevance: 10,
         };
 
-        // Code fence closing: ```
+        // Code fence closing: ``` or ~~~
         const CODE_FENCE_END = {
             className: 'keyword',
-            begin: /^`{3,}$/,
+            begin: /^[`~]{3,}$/,
             relevance: 10,
         };
 
@@ -420,6 +437,8 @@
                 INLINE_COMMENT,    // {% %} - must be before ATTRIBUTE
                 SUPERSCRIPT,
                 SUBSCRIPT,
+                FORCED_STRONG,     // Must be before STRONG ({*text*} vs *text*)
+                FORCED_EMPHASIS,   // Must be before EMPHASIS ({_text_} vs _text_)
                 STRONG,
                 EMPHASIS,
                 INLINE_CODE,
