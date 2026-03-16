@@ -408,6 +408,89 @@ So this is on a new line.
 
 ---
 
+## Explicit Heading IDs
+
+{#custom-id}
+### Heading with Explicit ID
+
+{#another-id .heading-class}
+### Heading with ID and Class
+
+---
+
+## Forced Emphasis (Curly Brace Openers/Closers)
+
+This has {_forced emphasis_} using braces.
+
+This has {*forced strong*} using braces.
+
+Unambiguous: {_only opens_} and {_only closes_}
+
+Mixed: _regular_ and {_forced_} emphasis.
+
+---
+
+## Nonbreaking Space
+
+Use backslash-space for non-breaking\ space.
+
+Multiple\ nonbreaking\ spaces\ here.
+
+---
+
+## Roman Numeral Lists
+
+i. First item (lowercase roman)
+ii. Second item
+iii. Third item
+
+I. First item (uppercase roman)
+II. Second item
+III. Third item
+
+---
+
+## Alpha Lists
+
+a. First item (lowercase alpha)
+b. Second item
+c. Third item
+
+A. First item (uppercase alpha)
+B. Second item
+C. Third item
+
+---
+
+## Enclosed Parenthesis Lists
+
+(1) First item
+(2) Second item
+(3) Third item
+
+(a) Alpha enclosed
+(b) Another item
+
+---
+
+## Tight vs Loose Lists
+
+Tight list (no blank lines):
+
+- Item one
+- Item two
+- Item three
+
+Loose list (blank lines between):
+
+- Item one
+
+- Item two
+
+- Item three
+
+---
+
 ## Edge Cases
 
 Empty emphasis: __ (should not match)
@@ -423,6 +506,100 @@ URL with special chars: <https://example.com/path?query=value&other=123>
 Code with backticks: `` `code with backtick` ``
 
 Nested brackets: [[nested]] and [outer [inner] outer]
+
+Time format not parsed as symbol: 10:30:00 and 12:45.
+
+Unmatched brace with dash: {--- produces brace + em-dash.
+
+---
+
+## Extension: Task List Underscore
+
+- [_] Unchecked with underscore
+- [x] Checked task
+- [_] Another unchecked
+
+---
+
+## Extension: List Item Attributes
+
+- Regular item
+- Item with class
+  {.highlight}
+- Item with ID
+  {#special-item}
+- Item with multiple
+  {.important #item-3 data-value="test"}
+
+---
+
+## Extension: Table Row and Cell Attributes
+
+| Name | Value |
+|------|-------|
+| Cell |{.highlight} Data |
+| Row  | Here  |
+{.row-class}
+
+---
+
+## Extension: Boolean Attributes
+
+{reversed}
+1. Third (reversed)
+2. Second
+3. First
+
+::: details
+{open}
+This details block is open by default.
+:::
+
+---
+
+## Extension: Multiple Definition Terms
+
+: CLI
+: Command Line Interface
+
+  A text-based interface for computers.
+
+: color
+: colour
+
+  The visual property of objects.
+
+---
+
+## Extension: Definition Continuation
+
+: term
+
+  First definition.
+
+: +
+
+  Second definition (separate dd).
+
+: +
+
+  Third definition.
+
+---
+
+## Extension: Definition List Attributes
+
+{.glossary}
+: term1
+{.primary}
+
+  Definition with class.
+  {.definition-class}
+
+: term2
+{.secondary}
+
+  Another definition.
 
 ---
 
