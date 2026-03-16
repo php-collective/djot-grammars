@@ -75,9 +75,9 @@
       ]
     },
     "codeblock-raw": {
-      "comment": "Raw code block with format specifier ``` =html {.class}",
-      "begin": "^(`{3,}) +(=)([a-zA-Z0-9_-]+)(\\s*\\{[^}]*\\})?\\s*$",
-      "end": "^(`{3,})\\s*$",
+      "comment": "Raw code block with format specifier ``` =html {.class} or ~~~ =html {.class}",
+      "begin": "^([`~]{3,}) +(=)([a-zA-Z0-9_-]+)(\\s*\\{[^}]*\\})?\\s*$",
+      "end": "^([`~]{3,})\\s*$",
       "beginCaptures": {
         "1": { "name": "string.other.begin.code.fence.djot" },
         "2": { "name": "keyword.operator.raw.djot" },
@@ -90,9 +90,9 @@
       "contentName": "markup.raw.block.djot"
     },
     "codeblock": {
-      "comment": "Fenced code block - allows optional indentation",
-      "begin": "^(\\s*)(`{3,})([a-zA-Z0-9_+-]*)?(\\s*\\{[^}]*\\})?\\s*$",
-      "end": "^\\s*(`{3,})\\s*$",
+      "comment": "Fenced code block with backticks or tildes - allows optional indentation",
+      "begin": "^(\\s*)([`~]{3,})([a-zA-Z0-9_+-]*)?(\\s*\\{[^}]*\\})?\\s*$",
+      "end": "^\\s*([`~]{3,})\\s*$",
       "beginCaptures": {
         "2": { "name": "string.other.begin.code.fence.djot" },
         "3": { "name": "entity.name.function.language.djot" },
@@ -239,7 +239,7 @@
       "patterns": [
         {
           "comment": "Task list item - checked",
-          "match": "^(\\s*)(-|\\*|\\+|\\d+\\.|\\d+\\))\\s+(\\[[xX]\\])\\s+(.*)$",
+          "match": "^(\\s*)(-|\\*|\\+|\\d+[.)]|[a-zA-Z][.)]|[ivxlcdmIVXLCDM]+[.)]|\\(\\d+\\)|\\([a-zA-Z]\\)|\\([ivxlcdmIVXLCDM]+\\))\\s+(\\[[xX]\\])\\s+(.*)$",
           "captures": {
             "2": { "name": "keyword.operator.list.marker.djot" },
             "3": { "name": "markup.inserted.checkbox.checked.djot" },
@@ -248,7 +248,7 @@
         },
         {
           "comment": "Task list item - unchecked",
-          "match": "^(\\s*)(-|\\*|\\+|\\d+\\.|\\d+\\))\\s+(\\[[ _]\\])\\s+(.*)$",
+          "match": "^(\\s*)(-|\\*|\\+|\\d+[.)]|[a-zA-Z][.)]|[ivxlcdmIVXLCDM]+[.)]|\\(\\d+\\)|\\([a-zA-Z]\\)|\\([ivxlcdmIVXLCDM]+\\))\\s+(\\[[ _]\\])\\s+(.*)$",
           "captures": {
             "2": { "name": "keyword.operator.list.marker.djot" },
             "3": { "name": "markup.deleted.checkbox.unchecked.djot" },
@@ -256,8 +256,8 @@
           }
         },
         {
-          "comment": "Unordered/ordered list item",
-          "match": "^(\\s*)(-|\\*|\\+|\\d+\\.|\\d+\\))\\s+(.*)$",
+          "comment": "Unordered/ordered list item (including roman numerals, alpha, and enclosed)",
+          "match": "^(\\s*)(-|\\*|\\+|\\d+[.)]|[a-zA-Z][.)]|[ivxlcdmIVXLCDM]+[.)]|\\(\\d+\\)|\\([a-zA-Z]\\)|\\([ivxlcdmIVXLCDM]+\\))\\s+(.*)$",
           "captures": {
             "2": { "name": "keyword.operator.list.marker.djot" },
             "3": { "patterns": [{ "include": "#inline" }] }
@@ -620,8 +620,8 @@
       }
     },
     "strong": {
-      "comment": "Strong *text* - not in middle of words",
-      "begin": "(?<![\\w])(\\*)(?=\\S)",
+      "comment": "Strong *text* - not in middle of words, excludes *[ for abbreviation syntax",
+      "begin": "(?<![\\w])(\\*)(?=[^\\s\\[])",
       "end": "(\\*)(?![\\w])",
       "beginCaptures": {
         "1": { "name": "punctuation.definition.bold.begin.djot" }
