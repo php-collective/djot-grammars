@@ -225,6 +225,30 @@ Contributions are welcome! Please ensure any changes maintain compatibility with
 
 MIT License - see [LICENSE](LICENSE) for details.
 
+## Demos
+
+### CodeMirror Source Editor
+
+**Location:** `demo/codemirror/`
+
+Source code editor with Djot syntax highlighting and live preview. See [demo/codemirror/README.md](demo/codemirror/README.md).
+
+### WYSIWYG Editors
+
+**Location:** `demo/wysiwyg/`
+
+True WYSIWYG editors that serialize to Djot markup:
+
+| Editor | Description |
+|--------|-------------|
+| **Tiptap** | Full-featured editor with all Djot marks, tables, task lists, images, link editing |
+| **Milkdown** | Plugin-driven editor with GFM tables and native Markdown support |
+| **ProseMirror** | Direct implementation showing low-level architecture |
+
+See [demo/wysiwyg/README.md](demo/wysiwyg/README.md) for details.
+
+---
+
 ## Related Projects
 
 - [Djot](https://djot.net) - The Djot markup language
