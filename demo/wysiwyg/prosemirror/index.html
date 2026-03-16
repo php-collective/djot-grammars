@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProseMirror Djot WYSIWYG Demo</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            margin: 0 0 5px 0;
+            font-size: 1.6rem;
+            color: #e94560;
+        }
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        .subtitle a {
+            color: #4db5ff;
+        }
+        .editor-wrapper {
+            background: #16213e;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .menubar {
+            background: #0f3460;
+            padding: 8px 12px;
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #1a1a2e;
+        }
+        .menubar button {
+            background: #1a1a2e;
+            border: 1px solid #2a3f5f;
+            color: #e2e8f0;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .menubar button:hover {
+            background: #2a3f5f;
+            border-color: #4a5f8f;
+        }
+        .menubar button.active {
+            background: #e94560;
+            border-color: #e94560;
+            color: #fff;
+        }
+        .menubar button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .menubar .separator {
+            width: 1px;
+            background: #2a3f5f;
+            margin: 0 8px;
+        }
+        #editor {
+            min-height: 400px;
+            padding: 20px;
+        }
+        /* ProseMirror styles */
+        .ProseMirror {
+            outline: none;
+            line-height: 1.7;
+            color: #e2e8f0;
+        }
+        .ProseMirror h1, .ProseMirror h2, .ProseMirror h3, .ProseMirror h4 {
+            color: #e94560;
+            margin-top: 1.2em;
+            margin-bottom: 0.5em;
+            line-height: 1.3;
+        }
+        .ProseMirror h1 { font-size: 1.8em; }
+        .ProseMirror h2 { font-size: 1.4em; }
+        .ProseMirror h3 { font-size: 1.2em; }
+        .ProseMirror p {
+            margin: 0.8em 0;
+        }
+        .ProseMirror strong {
+            color: #fb923c;
+            font-weight: 700;
+        }
+        .ProseMirror em {
+            color: #fbbf24;
+        }
+        .ProseMirror code {
+            background: #0f3460;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            color: #4ade80;
+            font-size: 0.9em;
+        }
+        .ProseMirror pre {
+            background: #0f3460;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1em 0;
+        }
+        .ProseMirror pre code {
+            background: none;
+            padding: 0;
+            display: block;
+        }
+        .ProseMirror blockquote {
+            border-left: 4px solid #e94560;
+            margin: 1em 0;
+            padding-left: 16px;
+            color: #94a3b8;
+        }
+        .ProseMirror ul, .ProseMirror ol {
+            padding-left: 24px;
+            margin: 1em 0;
+        }
+        .ProseMirror li {
+            margin: 0.3em 0;
+        }
+        .ProseMirror li p {
+            margin: 0;
+        }
+        .ProseMirror a {
+            color: #4db5ff;
+            text-decoration: none;
+        }
+        .ProseMirror a:hover {
+            text-decoration: underline;
+        }
+        .ProseMirror hr {
+            border: none;
+            border-top: 2px solid #2a3f5f;
+            margin: 2em 0;
+        }
+        .ProseMirror mark {
+            background: #e9456066;
+            color: #fff;
+            padding: 1px 4px;
+            border-radius: 2px;
+        }
+        .ProseMirror del {
+            color: #64748b;
+            text-decoration: line-through;
+        }
+        .ProseMirror ins {
+            color: #4ade80;
+            text-decoration: none;
+            border-bottom: 1px solid #4ade80;
+        }
+        .ProseMirror sup {
+            color: #c084fc;
+            font-size: 0.8em;
+        }
+        .ProseMirror sub {
+            color: #c084fc;
+            font-size: 0.8em;
+        }
+        .ProseMirror-selectednode {
+            outline: 2px solid #e94560;
+        }
+        .ProseMirror .placeholder {
+            color: #4a5568;
+            pointer-events: none;
+            position: absolute;
+        }
+        /* Output panel */
+        .output-panel {
+            margin-top: 20px;
+            background: #16213e;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .output-header {
+            background: #0f3460;
+            padding: 10px 15px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .output-tabs {
+            display: flex;
+            gap: 0;
+        }
+        .output-tabs button {
+            background: transparent;
+            border: none;
+            color: #64748b;
+            padding: 8px 15px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-size: 0.85rem;
+        }
+        .output-tabs button.active {
+            color: #e94560;
+            border-bottom-color: #e94560;
+        }
+        .output-actions button {
+            background: #1a1a2e;
+            border: none;
+            color: #e2e8f0;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .output-content {
+            padding: 15px;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            color: #94a3b8;
+            max-height: 350px;
+            overflow: auto;
+            line-height: 1.5;
+        }
+        .info-box {
+            background: #0f3460;
+            border-left: 4px solid #e94560;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+        }
+        .info-box code {
+            background: #1a1a2e;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #4ade80;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ProseMirror Djot Editor</h1>
+        <p class="subtitle">
+            Direct <a href="https://prosemirror.net">ProseMirror</a> with custom Djot schema |
+            Serializes to Djot via <a href="https://github.com/jgm/djot.js">djot.js</a>
+        </p>
+
+        <div class="info-box">
+            <strong>True WYSIWYG:</strong> Edit formatted text directly. The editor uses a custom schema
+            supporting Djot elements like <code>{=highlight=}</code>, <code>{-delete-}</code>,
+            <code>{+insert+}</code>, <code>^super^</code>, and <code>~sub~</code>.
+        </div>
+
+        <div class="editor-wrapper">
+            <div class="menubar" id="menubar">
+                <button data-cmd="strong" title="Bold (*text*)"><b>B</b></button>
+                <button data-cmd="em" title="Emphasis (_text_)"><i>I</i></button>
+                <button data-cmd="code" title="Code (`text`)">&lt;/&gt;</button>
+                <button data-cmd="mark" title="Highlight ({=text=})">Mark</button>
+                <button data-cmd="del" title="Delete ({-text-})"><del>Del</del></button>
+                <button data-cmd="ins" title="Insert ({+text+})"><ins>Ins</ins></button>
+                <div class="separator"></div>
+                <button data-cmd="sup" title="Superscript (^text^)">X<sup>2</sup></button>
+                <button data-cmd="sub" title="Subscript (~text~)">X<sub>2</sub></button>
+                <div class="separator"></div>
+                <button data-cmd="heading1" title="Heading 1">H1</button>
+                <button data-cmd="heading2" title="Heading 2">H2</button>
+                <button data-cmd="heading3" title="Heading 3">H3</button>
+                <button data-cmd="paragraph" title="Paragraph">¶</button>
+                <div class="separator"></div>
+                <button data-cmd="bullet_list" title="Bullet list">• List</button>
+                <button data-cmd="ordered_list" title="Numbered list">1. List</button>
+                <button data-cmd="blockquote" title="Blockquote">" Quote</button>
+                <button data-cmd="code_block" title="Code block">{ }</button>
+                <div class="separator"></div>
+                <button data-cmd="link" title="Insert link">Link</button>
+                <button data-cmd="hr" title="Horizontal rule">―</button>
+            </div>
+            <div id="editor"></div>
+        </div>
+
+        <div class="output-panel">
+            <div class="output-header">
+                <div class="output-tabs">
+                    <button class="active" data-tab="djot">Djot Output</button>
+                    <button data-tab="html">HTML Preview</button>
+                    <button data-tab="json">Document JSON</button>
+                </div>
+                <div class="output-actions">
+                    <button id="copy-btn">Copy</button>
+                </div>
+            </div>
+            <div class="output-content" id="output"></div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/prosemirror-model@1/dist/index.js"></script>
+    <script src="https://unpkg.com/prosemirror-state@1/dist/index.js"></script>
+    <script src="https://unpkg.com/prosemirror-view@1/dist/index.js"></script>
+    <script src="https://unpkg.com/prosemirror-schema-basic@1/dist/index.js"></script>
+    <script src="https://unpkg.com/prosemirror-schema-list@1/dist/index.js"></script>
+    <script src="https://unpkg.com/prosemirror-history@1/dist/index.js"></script>
+    <script src="https://unpkg.com/prosemirror-keymap@1/dist/index.js"></script>
+    <script src="https://unpkg.com/prosemirror-commands@1/dist/index.js"></script>
+    <script src="https://unpkg.com/prosemirror-inputrules@1/dist/index.js"></script>
+
+    <script type="module">
+        import * as djot from 'https://esm.sh/@djot/djot@0';
+
+        const { Schema } = PM.model;
+        const { EditorState, Plugin } = PM.state;
+        const { EditorView } = PM.view;
+        const { addListNodes } = PM.schema_list;
+        const { history, undo, redo } = PM.history;
+        const { keymap } = PM.keymap;
+        const { baseKeymap, toggleMark, setBlockType, wrapIn } = PM.commands;
+
+        // Define Djot-enhanced schema
+        const djotSchema = new Schema({
+            nodes: {
+                doc: { content: "block+" },
+                paragraph: {
+                    content: "inline*",
+                    group: "block",
+                    parseDOM: [{ tag: "p" }],
+                    toDOM() { return ["p", 0]; }
+                },
+                heading: {
+                    attrs: { level: { default: 1 } },
+                    content: "inline*",
+                    group: "block",
+                    defining: true,
+                    parseDOM: [
+                        { tag: "h1", attrs: { level: 1 } },
+                        { tag: "h2", attrs: { level: 2 } },
+                        { tag: "h3", attrs: { level: 3 } },
+                        { tag: "h4", attrs: { level: 4 } },
+                    ],
+                    toDOM(node) { return ["h" + node.attrs.level, 0]; }
+                },
+                blockquote: {
+                    content: "block+",
+                    group: "block",
+                    parseDOM: [{ tag: "blockquote" }],
+                    toDOM() { return ["blockquote", 0]; }
+                },
+                code_block: {
+                    content: "text*",
+                    group: "block",
+                    code: true,
+                    defining: true,
+                    parseDOM: [{ tag: "pre", preserveWhitespace: "full" }],
+                    toDOM() { return ["pre", ["code", 0]]; }
+                },
+                horizontal_rule: {
+                    group: "block",
+                    parseDOM: [{ tag: "hr" }],
+                    toDOM() { return ["hr"]; }
+                },
+                bullet_list: {
+                    content: "list_item+",
+                    group: "block",
+                    parseDOM: [{ tag: "ul" }],
+                    toDOM() { return ["ul", 0]; }
+                },
+                ordered_list: {
+                    content: "list_item+",
+                    group: "block",
+                    attrs: { order: { default: 1 } },
+                    parseDOM: [{ tag: "ol", getAttrs(dom) {
+                        return { order: dom.hasAttribute("start") ? +dom.getAttribute("start") : 1 };
+                    }}],
+                    toDOM(node) {
+                        return node.attrs.order == 1 ? ["ol", 0] : ["ol", { start: node.attrs.order }, 0];
+                    }
+                },
+                list_item: {
+                    content: "paragraph block*",
+                    parseDOM: [{ tag: "li" }],
+                    toDOM() { return ["li", 0]; },
+                    defining: true
+                },
+                hard_break: {
+                    inline: true,
+                    group: "inline",
+                    selectable: false,
+                    parseDOM: [{ tag: "br" }],
+                    toDOM() { return ["br"]; }
+                },
+                text: { group: "inline" }
+            },
+            marks: {
+                strong: {
+                    parseDOM: [{ tag: "strong" }, { tag: "b" }],
+                    toDOM() { return ["strong", 0]; }
+                },
+                em: {
+                    parseDOM: [{ tag: "em" }, { tag: "i" }],
+                    toDOM() { return ["em", 0]; }
+                },
+                code: {
+                    parseDOM: [{ tag: "code" }],
+                    toDOM() { return ["code", 0]; }
+                },
+                link: {
+                    attrs: { href: {}, title: { default: null } },
+                    inclusive: false,
+                    parseDOM: [{ tag: "a[href]", getAttrs(dom) {
+                        return { href: dom.getAttribute("href"), title: dom.getAttribute("title") };
+                    }}],
+                    toDOM(node) {
+                        return ["a", { href: node.attrs.href, title: node.attrs.title }, 0];
+                    }
+                },
+                // Djot-specific marks
+                mark: {
+                    parseDOM: [{ tag: "mark" }],
+                    toDOM() { return ["mark", 0]; }
+                },
+                del: {
+                    parseDOM: [{ tag: "del" }, { tag: "s" }],
+                    toDOM() { return ["del", 0]; }
+                },
+                ins: {
+                    parseDOM: [{ tag: "ins" }],
+                    toDOM() { return ["ins", 0]; }
+                },
+                sup: {
+                    parseDOM: [{ tag: "sup" }],
+                    toDOM() { return ["sup", 0]; }
+                },
+                sub: {
+                    parseDOM: [{ tag: "sub" }],
+                    toDOM() { return ["sub", 0]; }
+                }
+            }
+        });
+
+        // Serialize ProseMirror document to Djot
+        function serializeToDjot(doc) {
+            let output = '';
+
+            function serializeNode(node, depth = 0) {
+                const indent = '';
+
+                switch (node.type.name) {
+                    case 'doc':
+                        node.content.forEach((child, i) => {
+                            if (i > 0) output += '\n';
+                            serializeNode(child, depth);
+                        });
+                        break;
+
+                    case 'paragraph':
+                        output += serializeInline(node) + '\n';
+                        break;
+
+                    case 'heading':
+                        output += '#'.repeat(node.attrs.level) + ' ' + serializeInline(node) + '\n';
+                        break;
+
+                    case 'blockquote':
+                        const lines = [];
+                        node.content.forEach(child => {
+                            const childOutput = serializeNodeToString(child);
+                            childOutput.split('\n').forEach(line => {
+                                if (line) lines.push('> ' + line);
+                            });
+                        });
+                        output += lines.join('\n') + '\n';
+                        break;
+
+                    case 'code_block':
+                        output += '```\n' + node.textContent + '\n```\n';
+                        break;
+
+                    case 'bullet_list':
+                        node.content.forEach(item => {
+                            output += '- ' + serializeListItem(item) + '\n';
+                        });
+                        break;
+
+                    case 'ordered_list':
+                        let num = node.attrs.order || 1;
+                        node.content.forEach(item => {
+                            output += num + '. ' + serializeListItem(item) + '\n';
+                            num++;
+                        });
+                        break;
+
+                    case 'horizontal_rule':
+                        output += '---\n';
+                        break;
+                }
+            }
+
+            function serializeNodeToString(node) {
+                let result = '';
+                const oldOutput = output;
+                output = '';
+                serializeNode(node);
+                result = output;
+                output = oldOutput;
+                return result.trim();
+            }
+
+            function serializeListItem(node) {
+                let text = '';
+                node.content.forEach((child, i) => {
+                    if (child.type.name === 'paragraph') {
+                        text += serializeInline(child);
+                    }
+                });
+                return text;
+            }
+
+            function serializeInline(node) {
+                let text = '';
+                node.content.forEach(child => {
+                    if (child.isText) {
+                        let t = child.text;
+                        // Apply marks in Djot syntax
+                        child.marks.forEach(mark => {
+                            switch (mark.type.name) {
+                                case 'strong': t = '*' + t + '*'; break;
+                                case 'em': t = '_' + t + '_'; break;
+                                case 'code': t = '`' + t + '`'; break;
+                                case 'mark': t = '{=' + t + '=}'; break;
+                                case 'del': t = '{-' + t + '-}'; break;
+                                case 'ins': t = '{+' + t + '+}'; break;
+                                case 'sup': t = '^' + t + '^'; break;
+                                case 'sub': t = '~' + t + '~'; break;
+                                case 'link': t = '[' + t + '](' + mark.attrs.href + ')'; break;
+                            }
+                        });
+                        text += t;
+                    } else if (child.type.name === 'hard_break') {
+                        text += '\\\n';
+                    }
+                });
+                return text;
+            }
+
+            serializeNode(doc);
+            return output.trim();
+        }
+
+        // Initial content
+        const initialDoc = djotSchema.node('doc', null, [
+            djotSchema.node('heading', { level: 1 }, [djotSchema.text('Welcome to ProseMirror + Djot')]),
+            djotSchema.node('paragraph', null, [
+                djotSchema.text('This is a '),
+                djotSchema.text('true WYSIWYG editor', [djotSchema.mark('strong')]),
+                djotSchema.text(' built directly on ProseMirror with a custom schema for Djot elements.')
+            ]),
+            djotSchema.node('heading', { level: 2 }, [djotSchema.text('Djot-Specific Features')]),
+            djotSchema.node('paragraph', null, [
+                djotSchema.text('Try these Djot-specific inline elements:')
+            ]),
+            djotSchema.node('bullet_list', null, [
+                djotSchema.node('list_item', null, [
+                    djotSchema.node('paragraph', null, [
+                        djotSchema.text('Highlighted text', [djotSchema.mark('mark')]),
+                        djotSchema.text(' with {=text=}')
+                    ])
+                ]),
+                djotSchema.node('list_item', null, [
+                    djotSchema.node('paragraph', null, [
+                        djotSchema.text('Deleted text', [djotSchema.mark('del')]),
+                        djotSchema.text(' with {-text-}')
+                    ])
+                ]),
+                djotSchema.node('list_item', null, [
+                    djotSchema.node('paragraph', null, [
+                        djotSchema.text('Inserted text', [djotSchema.mark('ins')]),
+                        djotSchema.text(' with {+text+}')
+                    ])
+                ]),
+                djotSchema.node('list_item', null, [
+                    djotSchema.node('paragraph', null, [
+                        djotSchema.text('Superscript'),
+                        djotSchema.text('2', [djotSchema.mark('sup')]),
+                        djotSchema.text(' with ^text^')
+                    ])
+                ]),
+                djotSchema.node('list_item', null, [
+                    djotSchema.node('paragraph', null, [
+                        djotSchema.text('Subscript'),
+                        djotSchema.text('2', [djotSchema.mark('sub')]),
+                        djotSchema.text(' with ~text~')
+                    ])
+                ])
+            ]),
+            djotSchema.node('heading', { level: 2 }, [djotSchema.text('Standard Formatting')]),
+            djotSchema.node('paragraph', null, [
+                djotSchema.text('Of course, '),
+                djotSchema.text('bold', [djotSchema.mark('strong')]),
+                djotSchema.text(' and '),
+                djotSchema.text('italic', [djotSchema.mark('em')]),
+                djotSchema.text(' work too, along with '),
+                djotSchema.text('inline code', [djotSchema.mark('code')]),
+                djotSchema.text('.')
+            ]),
+            djotSchema.node('blockquote', null, [
+                djotSchema.node('paragraph', null, [
+                    djotSchema.text('ProseMirror provides a solid foundation for building rich text editors with custom schemas.')
+                ])
+            ]),
+            djotSchema.node('code_block', null, [
+                djotSchema.text('// Example code block\nconst djot = require("@djot/djot");\nconst html = djot.renderHTML(doc);')
+            ]),
+            djotSchema.node('horizontal_rule'),
+            djotSchema.node('paragraph', null, [
+                djotSchema.text('Edit this content and watch the Djot output update in real-time below!')
+            ])
+        ]);
+
+        // Create editor state
+        let state = EditorState.create({
+            doc: initialDoc,
+            plugins: [
+                history(),
+                keymap({
+                    'Mod-z': undo,
+                    'Mod-y': redo,
+                    'Mod-Shift-z': redo,
+                    'Mod-b': toggleMark(djotSchema.marks.strong),
+                    'Mod-i': toggleMark(djotSchema.marks.em),
+                    'Mod-`': toggleMark(djotSchema.marks.code),
+                    'Mod-Shift-h': toggleMark(djotSchema.marks.mark),
+                }),
+                keymap(baseKeymap)
+            ]
+        });
+
+        // Create editor view
+        const view = new EditorView(document.getElementById('editor'), {
+            state,
+            dispatchTransaction(transaction) {
+                const newState = view.state.apply(transaction);
+                view.updateState(newState);
+                updateOutput();
+            }
+        });
+
+        let currentTab = 'djot';
+
+        function updateOutput() {
+            const outputEl = document.getElementById('output');
+            const doc = view.state.doc;
+
+            if (currentTab === 'djot') {
+                outputEl.textContent = serializeToDjot(doc);
+            } else if (currentTab === 'html') {
+                try {
+                    const djotText = serializeToDjot(doc);
+                    const parsed = djot.parse(djotText);
+                    outputEl.textContent = djot.renderHTML(parsed);
+                } catch (e) {
+                    outputEl.textContent = 'Error: ' + e.message;
+                }
+            } else if (currentTab === 'json') {
+                outputEl.textContent = JSON.stringify(doc.toJSON(), null, 2);
+            }
+        }
+
+        // Tab switching
+        document.querySelectorAll('.output-tabs button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.output-tabs button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentTab = btn.dataset.tab;
+                updateOutput();
+            });
+        });
+
+        // Copy button
+        document.getElementById('copy-btn').addEventListener('click', () => {
+            navigator.clipboard.writeText(document.getElementById('output').textContent);
+        });
+
+        // Toolbar commands
+        document.querySelectorAll('.menubar button[data-cmd]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const cmd = btn.dataset.cmd;
+                view.focus();
+
+                switch (cmd) {
+                    case 'strong':
+                        toggleMark(djotSchema.marks.strong)(view.state, view.dispatch);
+                        break;
+                    case 'em':
+                        toggleMark(djotSchema.marks.em)(view.state, view.dispatch);
+                        break;
+                    case 'code':
+                        toggleMark(djotSchema.marks.code)(view.state, view.dispatch);
+                        break;
+                    case 'mark':
+                        toggleMark(djotSchema.marks.mark)(view.state, view.dispatch);
+                        break;
+                    case 'del':
+                        toggleMark(djotSchema.marks.del)(view.state, view.dispatch);
+                        break;
+                    case 'ins':
+                        toggleMark(djotSchema.marks.ins)(view.state, view.dispatch);
+                        break;
+                    case 'sup':
+                        toggleMark(djotSchema.marks.sup)(view.state, view.dispatch);
+                        break;
+                    case 'sub':
+                        toggleMark(djotSchema.marks.sub)(view.state, view.dispatch);
+                        break;
+                    case 'heading1':
+                        setBlockType(djotSchema.nodes.heading, { level: 1 })(view.state, view.dispatch);
+                        break;
+                    case 'heading2':
+                        setBlockType(djotSchema.nodes.heading, { level: 2 })(view.state, view.dispatch);
+                        break;
+                    case 'heading3':
+                        setBlockType(djotSchema.nodes.heading, { level: 3 })(view.state, view.dispatch);
+                        break;
+                    case 'paragraph':
+                        setBlockType(djotSchema.nodes.paragraph)(view.state, view.dispatch);
+                        break;
+                    case 'blockquote':
+                        wrapIn(djotSchema.nodes.blockquote)(view.state, view.dispatch);
+                        break;
+                    case 'code_block':
+                        setBlockType(djotSchema.nodes.code_block)(view.state, view.dispatch);
+                        break;
+                    case 'hr':
+                        const { tr } = view.state;
+                        tr.replaceSelectionWith(djotSchema.nodes.horizontal_rule.create());
+                        view.dispatch(tr);
+                        break;
+                    case 'link':
+                        const href = prompt('Enter URL:');
+                        if (href) {
+                            toggleMark(djotSchema.marks.link, { href })(view.state, view.dispatch);
+                        }
+                        break;
+                    case 'bullet_list':
+                    case 'ordered_list':
+                        alert('List wrapping requires additional list commands plugin.');
+                        break;
+                }
+            });
+        });
+
+        // Initial output
+        updateOutput();
+    </script>
+</body>
+</html>

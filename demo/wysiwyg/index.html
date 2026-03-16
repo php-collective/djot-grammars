@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Djot WYSIWYG Editor Demos</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #0c0c1d 0%, #1a1a3e 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin: 0 0 10px 0;
+            background: linear-gradient(135deg, #e94560, #f472b6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+        .demos {
+            display: grid;
+            gap: 20px;
+        }
+        .demo-card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 24px;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #334155;
+            position: relative;
+        }
+        .demo-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        }
+        .demo-card.recommended {
+            border-color: #8b5cf6;
+        }
+        .demo-card.recommended:hover {
+            border-color: #a78bfa;
+        }
+        .demo-card h2 {
+            margin: 0 0 8px 0;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .demo-card.tiptap h2 { color: #a78bfa; }
+        .demo-card.milkdown h2 { color: #f472b6; }
+        .demo-card.prosemirror h2 { color: #e94560; }
+        .demo-card p {
+            margin: 0 0 16px 0;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+        .demo-card .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .demo-card .tag {
+            display: inline-block;
+            background: #334155;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #e2e8f0;
+        }
+        .demo-card .tag.primary {
+            background: #8b5cf6;
+        }
+        .demo-card .tag.green {
+            background: #059669;
+        }
+        .badge {
+            background: #8b5cf6;
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .info {
+            margin-top: 40px;
+            padding: 20px;
+            background: #1e293b;
+            border-radius: 8px;
+            border-left: 4px solid #38bdf8;
+        }
+        .info h3 {
+            margin: 0 0 10px 0;
+            color: #38bdf8;
+        }
+        .info p {
+            margin: 0;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+        .info a {
+            color: #38bdf8;
+        }
+        .comparison {
+            margin-top: 30px;
+            overflow-x: auto;
+        }
+        .comparison table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        .comparison th, .comparison td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+        .comparison th {
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        .comparison td {
+            color: #e2e8f0;
+        }
+        .comparison tr:hover td {
+            background: #334155;
+        }
+        .check { color: #4ade80; }
+        .partial { color: #fbbf24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Djot WYSIWYG Demos</h1>
+        <p class="subtitle">True WYSIWYG editors that serialize to Djot markup</p>
+
+        <div class="demos">
+            <a href="tiptap/" class="demo-card tiptap recommended">
+                <h2>Tiptap Editor <span class="badge">Recommended</span></h2>
+                <p>
+                    The most popular headless editor with the best developer experience.
+                    Custom extensions for all Djot-specific marks including highlight, insert,
+                    delete, superscript, and subscript. Full toolbar with active state indicators.
+                </p>
+                <div class="tags">
+                    <span class="tag primary">Best DX</span>
+                    <span class="tag green">Full Djot marks</span>
+                    <span class="tag">ProseMirror-based</span>
+                    <span class="tag">Extensible</span>
+                </div>
+            </a>
+
+            <a href="milkdown/" class="demo-card milkdown">
+                <h2>Milkdown Editor</h2>
+                <p>
+                    Plugin-driven editor with native Markdown support. Great for projects
+                    already using Markdown. Features GFM support including tables and
+                    strikethrough. Fully functional toolbar with all common formatting options.
+                </p>
+                <div class="tags">
+                    <span class="tag">Plugin system</span>
+                    <span class="tag">Native Markdown</span>
+                    <span class="tag">GFM tables</span>
+                    <span class="tag">Easy setup</span>
+                </div>
+            </a>
+
+            <a href="prosemirror/" class="demo-card prosemirror">
+                <h2>ProseMirror Editor</h2>
+                <p>
+                    Direct ProseMirror implementation with custom Djot schema. Maximum control
+                    over the document model. Best for understanding the underlying architecture
+                    or building highly customized editors.
+                </p>
+                <div class="tags">
+                    <span class="tag">Maximum control</span>
+                    <span class="tag">Custom schema</span>
+                    <span class="tag">Low-level API</span>
+                    <span class="tag">Educational</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="comparison">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Tiptap</th>
+                        <th>Milkdown</th>
+                        <th>ProseMirror</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Learning Curve</td>
+                        <td><span class="check">Easy</span></td>
+                        <td><span class="check">Easy</span></td>
+                        <td><span class="partial">Steep</span></td>
+                    </tr>
+                    <tr>
+                        <td>Djot Highlight <code>{=text=}</code></td>
+                        <td><span class="check">✓</span></td>
+                        <td>—</td>
+                        <td><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Djot Insert <code>{+text+}</code></td>
+                        <td><span class="check">✓</span></td>
+                        <td>—</td>
+                        <td><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Djot Delete <code>{-text-}</code></td>
+                        <td><span class="check">✓</span></td>
+                        <td><span class="check">✓ (via ~~)</span></td>
+                        <td><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Super/Subscript</td>
+                        <td><span class="check">✓</span></td>
+                        <td>—</td>
+                        <td><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Tables</td>
+                        <td><span class="partial">Basic</span></td>
+                        <td><span class="check">✓ GFM</span></td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td>Toolbar State</td>
+                        <td><span class="check">✓ Active indicators</span></td>
+                        <td><span class="partial">Basic</span></td>
+                        <td><span class="partial">Basic</span></td>
+                    </tr>
+                    <tr>
+                        <td>Best For</td>
+                        <td>Production apps</td>
+                        <td>Markdown-first projects</td>
+                        <td>Custom implementations</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="info">
+            <h3>What is WYSIWYG?</h3>
+            <p>
+                Unlike source editors (CodeMirror, Monaco) where you edit markup code with a preview panel,
+                WYSIWYG editors let you edit the formatted text directly. Bold text appears bold while you type.
+                The editors then serialize your document to <a href="https://djot.net">Djot</a> markup format.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
