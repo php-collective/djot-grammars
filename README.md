@@ -113,6 +113,39 @@ This is *strong* and _emphasized_ text.
 
 ---
 
+### Tiptap Integration
+
+**Location:** `tiptap/`
+
+WYSIWYG editor integration for [Tiptap](https://tiptap.dev) with Djot serialization.
+
+#### Quick Start
+
+```js
+import { Editor } from '@tiptap/core'
+import { DjotKit, serializeToDjot } from 'djot-grammars/tiptap'
+
+const editor = new Editor({
+  element: document.getElementById('editor'),
+  extensions: [DjotKit],
+  onUpdate: ({ editor }) => {
+    const djot = serializeToDjot(editor.getJSON())
+    console.log(djot)
+  },
+})
+```
+
+#### Features
+
+- **DjotKit** - All-in-one extension bundle with full Djot support
+- **Custom marks** - Insert `{+text+}`, Delete `{-text-}`, Div containers `:::`
+- **Serializer** - Convert editor content to Djot markup
+- Tables, task lists, code blocks with language, images, links
+
+See [tiptap/README.md](tiptap/README.md) for full documentation.
+
+---
+
 ## External Grammars
 
 These Djot grammars are maintained in other repositories:
@@ -194,13 +227,14 @@ Download the grammar files directly from this repository.
 
 ## Comparison
 
-| Feature | TextMate | highlight.js | Prism.js | tree-sitter |
-|---------|----------|--------------|----------|-------------|
-| Rendering | Server/Client | Client | Client | Server/Editor |
-| JS required | Depends | Yes | Yes | No |
-| Used by | Shiki, VS Code, Phiki | highlight.js | Prism.js | Neovim, Helix |
-| Themes | VS Code themes | 90+ | 8+ | Editor themes |
-| Extensible | Limited | Some | Extensive | Yes |
+| Feature | TextMate | highlight.js | Prism.js | Tiptap | tree-sitter |
+|---------|----------|--------------|----------|--------|-------------|
+| Type | Syntax highlighting | Syntax highlighting | Syntax highlighting | WYSIWYG editor | Syntax highlighting |
+| Rendering | Server/Client | Client | Client | Client | Server/Editor |
+| JS required | Depends | Yes | Yes | Yes | No |
+| Used by | Shiki, VS Code, Phiki | highlight.js | Prism.js | Tiptap/ProseMirror | Neovim, Helix |
+| Themes | VS Code themes | 90+ | 8+ | Custom CSS | Editor themes |
+| Extensible | Limited | Some | Extensive | Yes | Yes |
 
 ---
 
