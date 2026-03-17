@@ -30,13 +30,16 @@
     "textmate/",
     "highlightjs/",
     "prismjs/",
+    "tiptap/",
     "README.md",
     "LICENSE"
   ],
   "exports": {
     "./textmate/djot.tmLanguage.json": "./textmate/djot.tmLanguage.json",
     "./highlightjs/djot.js": "./highlightjs/djot.js",
-    "./prismjs/djot.js": "./prismjs/djot.js"
+    "./prismjs/djot.js": "./prismjs/djot.js",
+    "./tiptap": "./tiptap/index.js",
+    "./tiptap/*": "./tiptap/*"
   },
   "devDependencies": {
     "highlight.js": "^11.11.1",
