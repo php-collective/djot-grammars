@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiptap Djot WYSIWYG Demo</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #0c0c1d 0%, #1a1a3e 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+        h1 {
+            margin: 0 0 5px 0;
+            font-size: 1.6rem;
+            color: #8b5cf6;
+        }
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        .subtitle a {
+            color: #a78bfa;
+        }
+        .editor-wrapper {
+            background: #1e1e3f;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+            border: 1px solid #2d2d5a;
+        }
+        .menubar {
+            background: #15152f;
+            padding: 8px 10px;
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #2d2d5a;
+        }
+        .menubar .group {
+            display: flex;
+            gap: 1px;
+            background: #252550;
+            border-radius: 6px;
+            padding: 2px;
+        }
+        .menubar button {
+            background: transparent;
+            border: none;
+            color: #a5a5c5;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .menubar button:hover {
+            background: #3d3d7a;
+            color: #fff;
+        }
+        .menubar button.is-active {
+            background: #8b5cf6;
+            color: #fff;
+        }
+        .menubar button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .menubar .divider {
+            width: 1px;
+            background: #2d2d5a;
+            margin: 0 4px;
+        }
+        .menubar select {
+            background: #252550;
+            border: 1px solid #3d3d7a;
+            color: #e2e8f0;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        #editor {
+            min-height: 450px;
+            padding: 20px 24px;
+            position: relative;
+        }
+        /* Tiptap/ProseMirror styles */
+        .tiptap {
+            outline: none;
+            line-height: 1.75;
+            color: #e2e8f0;
+        }
+        .tiptap > * + * {
+            margin-top: 0.75em;
+        }
+        .tiptap h1, .tiptap h2, .tiptap h3 {
+            color: #a78bfa;
+            line-height: 1.3;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+        .tiptap h1 { font-size: 1.8em; }
+        .tiptap h2 { font-size: 1.5em; }
+        .tiptap h3 { font-size: 1.25em; }
+        .tiptap p {
+            margin: 0;
+        }
+        .tiptap strong {
+            color: #fb923c;
+            font-weight: 700;
+        }
+        .tiptap em {
+            color: #fbbf24;
+        }
+        .tiptap s {
+            color: #64748b;
+        }
+        .tiptap code {
+            background: #252550;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: 'Fira Code', 'JetBrains Mono', monospace;
+            color: #4ade80;
+            font-size: 0.9em;
+        }
+        .tiptap pre {
+            background: #151530;
+            padding: 16px 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1em 0;
+            border: 1px solid #2d2d5a;
+            position: relative;
+        }
+        .tiptap pre::before {
+            content: attr(data-language);
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            font-size: 11px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+        .tiptap pre code {
+            background: none;
+            padding: 0;
+            display: block;
+            color: #e2e8f0;
+        }
+        .tiptap blockquote {
+            border-left: 4px solid #8b5cf6;
+            margin: 1em 0;
+            padding-left: 16px;
+            color: #94a3b8;
+            font-style: italic;
+        }
+        .tiptap ul, .tiptap ol {
+            padding-left: 24px;
+            margin: 0.5em 0;
+        }
+        .tiptap li {
+            margin: 0.25em 0;
+        }
+        .tiptap li p {
+            margin: 0;
+        }
+        .tiptap a {
+            color: #60a5fa;
+            text-decoration: none;
+            border-bottom: 1px solid #60a5fa44;
+        }
+        .tiptap a:hover {
+            border-bottom-color: #60a5fa;
+        }
+        .tiptap hr {
+            border: none;
+            border-top: 2px solid #2d2d5a;
+            margin: 2em 0;
+        }
+        /* Djot-specific marks */
+        .tiptap mark {
+            background: #8b5cf666;
+            color: #fff;
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+        .tiptap .djot-insert {
+            color: #4ade80;
+            text-decoration: none;
+            border-bottom: 1px dashed #4ade80;
+        }
+        .tiptap .djot-delete {
+            color: #f87171;
+            text-decoration: line-through;
+        }
+        .tiptap sup {
+            color: #c084fc;
+            font-size: 0.75em;
+            vertical-align: super;
+        }
+        .tiptap sub {
+            color: #c084fc;
+            font-size: 0.75em;
+            vertical-align: sub;
+        }
+        /* Tables */
+        .tiptap table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1em 0;
+            overflow: hidden;
+        }
+        .tiptap th, .tiptap td {
+            border: 1px solid #3d3d7a;
+            padding: 8px 12px;
+            text-align: left;
+            position: relative;
+        }
+        .tiptap th {
+            background: #252550;
+            font-weight: 600;
+        }
+        .tiptap td {
+            background: #1e1e3f;
+        }
+        .tiptap .selectedCell {
+            background: #8b5cf633;
+        }
+        /* Task lists */
+        .tiptap ul[data-type="taskList"] {
+            list-style: none;
+            padding-left: 0;
+        }
+        .tiptap ul[data-type="taskList"] li {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .tiptap ul[data-type="taskList"] li > label {
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
+        .tiptap ul[data-type="taskList"] input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #8b5cf6;
+        }
+        /* Images */
+        .tiptap img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1em 0;
+        }
+        .tiptap img.ProseMirror-selectednode {
+            outline: 3px solid #8b5cf6;
+        }
+        /* Divs */
+        .tiptap .djot-div {
+            border-left: 3px solid #8b5cf6;
+            padding: 12px 16px;
+            margin: 1em 0;
+            background: #25255033;
+            border-radius: 0 8px 8px 0;
+        }
+        .tiptap .djot-div.warning {
+            border-left-color: #f59e0b;
+            background: #f59e0b11;
+        }
+        .tiptap .djot-div.tip {
+            border-left-color: #10b981;
+            background: #10b98111;
+        }
+        .tiptap .djot-div.danger {
+            border-left-color: #ef4444;
+            background: #ef444411;
+        }
+        .tiptap p.is-editor-empty:first-child::before {
+            content: attr(data-placeholder);
+            color: #4a4a7a;
+            pointer-events: none;
+            float: left;
+            height: 0;
+        }
+        /* Output panel */
+        .output-panel {
+            margin-top: 20px;
+            background: #1e1e3f;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #2d2d5a;
+        }
+        .output-header {
+            background: #15152f;
+            padding: 0 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #2d2d5a;
+        }
+        .output-tabs {
+            display: flex;
+            gap: 0;
+        }
+        .output-tabs button {
+            background: transparent;
+            border: none;
+            color: #64748b;
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-size: 0.85rem;
+            transition: all 0.15s;
+        }
+        .output-tabs button:hover {
+            color: #a5a5c5;
+        }
+        .output-tabs button.active {
+            color: #8b5cf6;
+            border-bottom-color: #8b5cf6;
+        }
+        .output-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .output-actions button {
+            background: #252550;
+            border: none;
+            color: #a5a5c5;
+            padding: 6px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.15s;
+        }
+        .output-actions button:hover {
+            background: #3d3d7a;
+            color: #fff;
+        }
+        .output-content {
+            padding: 16px 20px;
+            font-family: 'Fira Code', 'JetBrains Mono', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            color: #94a3b8;
+            max-height: 400px;
+            overflow: auto;
+            line-height: 1.6;
+        }
+        .info-box {
+            background: #1a1a4a;
+            border-left: 4px solid #8b5cf6;
+            padding: 14px 18px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .info-box code {
+            background: #252550;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #a78bfa;
+            font-size: 0.85em;
+        }
+        .badge {
+            display: inline-block;
+            background: #8b5cf6;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal {
+            background: #1e1e3f;
+            border-radius: 12px;
+            padding: 24px;
+            min-width: 400px;
+            border: 1px solid #3d3d7a;
+        }
+        .modal h3 {
+            margin: 0 0 16px 0;
+            color: #a78bfa;
+        }
+        .modal label {
+            display: block;
+            margin-bottom: 8px;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        .modal input, .modal select {
+            width: 100%;
+            padding: 10px 12px;
+            background: #252550;
+            border: 1px solid #3d3d7a;
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .modal input:focus, .modal select:focus {
+            outline: none;
+            border-color: #8b5cf6;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .modal-buttons button {
+            padding: 8px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .modal-buttons .cancel {
+            background: #3d3d7a;
+            color: #e2e8f0;
+        }
+        .modal-buttons .confirm {
+            background: #8b5cf6;
+            color: #fff;
+        }
+        /* Link popover */
+        .link-popover {
+            display: none;
+            position: absolute;
+            background: #1e1e3f;
+            border: 1px solid #3d3d7a;
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            z-index: 100;
+            flex-direction: row;
+            gap: 6px;
+            align-items: center;
+        }
+        .link-popover.show {
+            display: flex;
+        }
+        .link-popover input {
+            background: #252550;
+            border: 1px solid #3d3d7a;
+            border-radius: 4px;
+            color: #e2e8f0;
+            padding: 6px 10px;
+            font-size: 13px;
+            width: 250px;
+        }
+        .link-popover input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+        }
+        .link-popover-buttons {
+            display: flex;
+            gap: 4px;
+        }
+        .link-popover-buttons button {
+            background: #252550;
+            border: none;
+            color: #a5a5c5;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.15s;
+        }
+        .link-popover-buttons button:hover {
+            background: #3d3d7a;
+            color: #fff;
+        }
+        .link-popover-buttons button:first-child:hover {
+            background: #10b981;
+        }
+        .link-popover-buttons button:nth-child(2):hover {
+            background: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tiptap Editor <span class="badge">Using DjotKit</span></h1>
+        <p class="subtitle">
+            Demo using <code>djot-grammars/tiptap</code> module with <a href="https://tiptap.dev">Tiptap</a>
+        </p>
+
+        <div class="info-box">
+            <strong>This demo uses the reusable module:</strong> <code>import { DjotKit, serializeToDjot } from 'djot-grammars/tiptap'</code>
+        </div>
+
+        <div class="editor-wrapper">
+            <div class="menubar" id="menubar">
+                <!-- Text formatting -->
+                <div class="group">
+                    <button data-cmd="bold" title="Strong *text*"><b>B</b></button>
+                    <button data-cmd="italic" title="Emphasis _text_"><i>I</i></button>
+                    <button data-cmd="code" title="Code `text`">&lt;/&gt;</button>
+                </div>
+                <!-- Djot marks -->
+                <div class="group">
+                    <button data-cmd="highlight" title="Highlight {=text=}">
+                        <span style="background:#8b5cf666;padding:0 4px;border-radius:2px;">H</span>
+                    </button>
+                    <button data-cmd="djotDelete" title="Delete {-text-}">
+                        <span style="color:#f87171;text-decoration:line-through;">D</span>
+                    </button>
+                    <button data-cmd="djotInsert" title="Insert {+text+}">
+                        <span style="color:#4ade80;">+</span>
+                    </button>
+                    <button data-cmd="superscript" title="Superscript ^text^">x²</button>
+                    <button data-cmd="subscript" title="Subscript ~text~">x₂</button>
+                </div>
+                <div class="divider"></div>
+                <!-- Headings -->
+                <div class="group">
+                    <button data-cmd="heading1">H1</button>
+                    <button data-cmd="heading2">H2</button>
+                    <button data-cmd="heading3">H3</button>
+                    <button data-cmd="paragraph">¶</button>
+                </div>
+                <!-- Lists -->
+                <div class="group">
+                    <button data-cmd="bulletList" title="Bullet list">•</button>
+                    <button data-cmd="orderedList" title="Ordered list">1.</button>
+                    <button data-cmd="taskList" title="Task list">☑</button>
+                </div>
+                <!-- Blocks -->
+                <div class="group">
+                    <button data-cmd="blockquote" title="Blockquote">"</button>
+                    <button data-cmd="codeBlock" title="Code block">{ }</button>
+                    <button data-cmd="divBlock" title="Div container">:::div</button>
+                </div>
+                <div class="divider"></div>
+                <!-- Insert -->
+                <div class="group">
+                    <button data-cmd="link" title="Link (Ctrl+Shift+K)">🔗</button>
+                    <button data-cmd="image" title="Image">🖼</button>
+                    <button data-cmd="horizontalRule" title="Horizontal rule">―</button>
+                </div>
+                <!-- Table -->
+                <div class="group">
+                    <button data-cmd="insertTable" title="Insert table">▦</button>
+                    <button data-cmd="addColumnAfter" title="Add column">+Col</button>
+                    <button data-cmd="addRowAfter" title="Add row">+Row</button>
+                    <button data-cmd="deleteTable" title="Delete table">✕▦</button>
+                </div>
+                <div class="divider"></div>
+                <!-- Code block language -->
+                <select id="codeLanguage" title="Code block language">
+                    <option value="">Language...</option>
+                    <option value="php">PHP</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="typescript">TypeScript</option>
+                    <option value="python">Python</option>
+                    <option value="html">HTML</option>
+                    <option value="css">CSS</option>
+                    <option value="sql">SQL</option>
+                    <option value="bash">Bash</option>
+                    <option value="json">JSON</option>
+                </select>
+                <div class="divider"></div>
+                <!-- History -->
+                <div class="group">
+                    <button data-cmd="undo" title="Undo">↩</button>
+                    <button data-cmd="redo" title="Redo">↪</button>
+                </div>
+            </div>
+            <div id="editor"></div>
+        </div>
+
+        <div class="output-panel">
+            <div class="output-header">
+                <div class="output-tabs">
+                    <button class="active" data-tab="djot">Djot Output</button>
+                    <button data-tab="html">HTML Preview</button>
+                    <button data-tab="json">Document JSON</button>
+                </div>
+                <div class="output-actions">
+                    <button id="copy-btn">Copy</button>
+                </div>
+            </div>
+            <div class="output-content" id="output"></div>
+        </div>
+    </div>
+
+    <!-- Link popover -->
+    <div class="link-popover" id="linkPopover">
+        <input type="text" id="linkEditUrl" placeholder="https://...">
+        <div class="link-popover-buttons">
+            <button onclick="updateLink()" title="Save">✓</button>
+            <button onclick="removeLink()" title="Remove link">🗑</button>
+            <button onclick="openLinkInNewTab()" title="Open link">↗</button>
+            <button onclick="closeLinkPopover()" title="Cancel">✕</button>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="imageModal">
+        <div class="modal">
+            <h3>Insert Image</h3>
+            <label>Image URL</label>
+            <input type="text" id="imageUrl" placeholder="https://example.com/image.jpg">
+            <label>Alt text</label>
+            <input type="text" id="imageAlt" placeholder="Description of image">
+            <div class="modal-buttons">
+                <button class="cancel" onclick="closeModal('imageModal')">Cancel</button>
+                <button class="confirm" onclick="insertImage()">Insert</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="divModal">
+        <div class="modal">
+            <h3>Insert Div Container</h3>
+            <label>Container type</label>
+            <select id="divType">
+                <option value="">Default</option>
+                <option value="tip">Tip</option>
+                <option value="warning">Warning</option>
+                <option value="danger">Danger</option>
+                <option value="note">Note</option>
+            </select>
+            <div class="modal-buttons">
+                <button class="cancel" onclick="closeModal('divModal')">Cancel</button>
+                <button class="confirm" onclick="insertDiv()">Insert</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "@tiptap/core": "https://esm.sh/@tiptap/core@2",
+            "@tiptap/starter-kit": "https://esm.sh/@tiptap/starter-kit@2",
+            "@tiptap/extension-highlight": "https://esm.sh/@tiptap/extension-highlight@2",
+            "@tiptap/extension-subscript": "https://esm.sh/@tiptap/extension-subscript@2",
+            "@tiptap/extension-superscript": "https://esm.sh/@tiptap/extension-superscript@2",
+            "@tiptap/extension-link": "https://esm.sh/@tiptap/extension-link@2",
+            "@tiptap/extension-placeholder": "https://esm.sh/@tiptap/extension-placeholder@2",
+            "@tiptap/extension-image": "https://esm.sh/@tiptap/extension-image@2",
+            "@tiptap/extension-table": "https://esm.sh/@tiptap/extension-table@2",
+            "@tiptap/extension-table-row": "https://esm.sh/@tiptap/extension-table-row@2",
+            "@tiptap/extension-table-cell": "https://esm.sh/@tiptap/extension-table-cell@2",
+            "@tiptap/extension-table-header": "https://esm.sh/@tiptap/extension-table-header@2",
+            "@tiptap/extension-task-list": "https://esm.sh/@tiptap/extension-task-list@2",
+            "@tiptap/extension-task-item": "https://esm.sh/@tiptap/extension-task-item@2",
+            "@djot/djot": "https://esm.sh/@djot/djot@0"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import { Editor } from '@tiptap/core';
+        import Placeholder from '@tiptap/extension-placeholder';
+        import * as djot from '@djot/djot';
+
+        // Import from the djot-grammars/tiptap module
+        // In production: import { DjotKit, serializeToDjot } from 'djot-grammars/tiptap'
+        // For this demo, we import from relative paths:
+        import { DjotKit } from '../djot-kit.js';
+        import { serializeToDjot } from '../serializer.js';
+
+        // Initial content
+        const initialContent = `
+            <h1>Tiptap + DjotKit Demo</h1>
+            <p>This editor uses the <strong>reusable DjotKit module</strong> from <code>djot-grammars/tiptap</code>.</p>
+
+            <h2>Usage</h2>
+            <pre><code class="language-javascript">import { Editor } from '@tiptap/core'
+import { DjotKit, serializeToDjot } from 'djot-grammars/tiptap'
+
+const editor = new Editor({
+  extensions: [DjotKit],
+  onUpdate: ({ editor }) => {
+    const djotMarkup = serializeToDjot(editor.getJSON())
+  },
+})</code></pre>
+
+            <h2>Djot Marks</h2>
+            <ul>
+                <li><strong>Strong</strong> → <code>*text*</code></li>
+                <li><em>Emphasis</em> → <code>_text_</code></li>
+                <li><mark>Highlight</mark> → <code>{=text=}</code></li>
+                <li><span class="djot-delete">Delete</span> → <code>{-text-}</code></li>
+                <li><span class="djot-insert">Insert</span> → <code>{+text+}</code></li>
+            </ul>
+
+            <h2>Tables</h2>
+            <table>
+                <tr><th>Feature</th><th>Status</th></tr>
+                <tr><td>DjotKit bundle</td><td>✓</td></tr>
+                <tr><td>Serializer</td><td>✓</td></tr>
+                <tr><td>Custom extensions</td><td>✓</td></tr>
+            </table>
+
+            <div class="djot-div tip">
+                <p>This is a tip container using <code>DjotDiv</code> extension.</p>
+            </div>
+
+            <p>Edit the content and see the Djot output below!</p>
+        `;
+
+        let currentTab = 'djot';
+        let editor;
+
+        // Create Tiptap editor using DjotKit
+        editor = new Editor({
+            element: document.getElementById('editor'),
+            extensions: [
+                DjotKit,
+                Placeholder.configure({ placeholder: 'Start typing...' }),
+            ],
+            content: initialContent,
+            onUpdate: () => {
+                updateOutput();
+                updateToolbarState();
+            },
+            onSelectionUpdate: () => {
+                updateToolbarState();
+                updateCodeLanguageDropdown();
+            },
+        });
+
+        // Make editor available globally for modals
+        window.tiptapEditor = editor;
+
+        function updateOutput() {
+            const outputEl = document.getElementById('output');
+            const doc = editor.getJSON();
+
+            if (currentTab === 'djot') {
+                outputEl.textContent = serializeToDjot(doc);
+            } else if (currentTab === 'html') {
+                try {
+                    const djotText = serializeToDjot(doc);
+                    const parsed = djot.parse(djotText);
+                    outputEl.textContent = djot.renderHTML(parsed);
+                } catch (e) {
+                    outputEl.textContent = 'Error: ' + e.message;
+                }
+            } else if (currentTab === 'json') {
+                outputEl.textContent = JSON.stringify(doc, null, 2);
+            }
+        }
+
+        function updateToolbarState() {
+            document.querySelectorAll('.menubar button[data-cmd]').forEach(btn => {
+                const cmd = btn.dataset.cmd;
+                let isActive = false;
+
+                switch (cmd) {
+                    case 'bold': isActive = editor.isActive('bold'); break;
+                    case 'italic': isActive = editor.isActive('italic'); break;
+                    case 'code': isActive = editor.isActive('code'); break;
+                    case 'highlight': isActive = editor.isActive('highlight'); break;
+                    case 'djotInsert': isActive = editor.isActive('djotInsert'); break;
+                    case 'djotDelete': isActive = editor.isActive('djotDelete'); break;
+                    case 'superscript': isActive = editor.isActive('superscript'); break;
+                    case 'subscript': isActive = editor.isActive('subscript'); break;
+                    case 'heading1': isActive = editor.isActive('heading', { level: 1 }); break;
+                    case 'heading2': isActive = editor.isActive('heading', { level: 2 }); break;
+                    case 'heading3': isActive = editor.isActive('heading', { level: 3 }); break;
+                    case 'bulletList': isActive = editor.isActive('bulletList'); break;
+                    case 'orderedList': isActive = editor.isActive('orderedList'); break;
+                    case 'taskList': isActive = editor.isActive('taskList'); break;
+                    case 'blockquote': isActive = editor.isActive('blockquote'); break;
+                    case 'codeBlock': isActive = editor.isActive('codeBlock'); break;
+                    case 'link': isActive = editor.isActive('link'); break;
+                }
+
+                btn.classList.toggle('is-active', isActive);
+            });
+        }
+
+        function updateCodeLanguageDropdown() {
+            const select = document.getElementById('codeLanguage');
+            if (editor.isActive('codeBlock')) {
+                const attrs = editor.getAttributes('codeBlock');
+                select.value = attrs.language || '';
+            }
+        }
+
+        // Code language dropdown
+        document.getElementById('codeLanguage').addEventListener('change', (e) => {
+            const language = e.target.value;
+            if (editor.isActive('codeBlock')) {
+                editor.chain().focus().updateAttributes('codeBlock', { language }).run();
+            } else if (language) {
+                editor.chain().focus().toggleCodeBlock({ language }).run();
+            }
+        });
+
+        // Toolbar commands
+        document.querySelectorAll('.menubar button[data-cmd]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const cmd = btn.dataset.cmd;
+                editor.chain().focus();
+
+                switch (cmd) {
+                    case 'bold': editor.chain().focus().toggleBold().run(); break;
+                    case 'italic': editor.chain().focus().toggleItalic().run(); break;
+                    case 'code': editor.chain().focus().toggleCode().run(); break;
+                    case 'highlight': editor.chain().focus().toggleHighlight().run(); break;
+                    case 'djotInsert': editor.chain().focus().toggleDjotInsert().run(); break;
+                    case 'djotDelete': editor.chain().focus().toggleDjotDelete().run(); break;
+                    case 'superscript': editor.chain().focus().toggleSuperscript().run(); break;
+                    case 'subscript': editor.chain().focus().toggleSubscript().run(); break;
+                    case 'heading1': editor.chain().focus().toggleHeading({ level: 1 }).run(); break;
+                    case 'heading2': editor.chain().focus().toggleHeading({ level: 2 }).run(); break;
+                    case 'heading3': editor.chain().focus().toggleHeading({ level: 3 }).run(); break;
+                    case 'paragraph': editor.chain().focus().setParagraph().run(); break;
+                    case 'bulletList': editor.chain().focus().toggleBulletList().run(); break;
+                    case 'orderedList': editor.chain().focus().toggleOrderedList().run(); break;
+                    case 'taskList': editor.chain().focus().toggleTaskList().run(); break;
+                    case 'blockquote': editor.chain().focus().toggleBlockquote().run(); break;
+                    case 'codeBlock':
+                        const lang = document.getElementById('codeLanguage').value;
+                        editor.chain().focus().toggleCodeBlock({ language: lang }).run();
+                        break;
+                    case 'horizontalRule': editor.chain().focus().setHorizontalRule().run(); break;
+                    case 'link':
+                        if (editor.isActive('link')) {
+                            showLinkPopover();
+                        } else {
+                            const url = prompt('Enter URL:');
+                            if (url) editor.chain().focus().setLink({ href: url }).run();
+                        }
+                        break;
+                    case 'image':
+                        document.getElementById('imageModal').classList.add('show');
+                        break;
+                    case 'divBlock':
+                        document.getElementById('divModal').classList.add('show');
+                        break;
+                    case 'insertTable':
+                        editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+                        break;
+                    case 'addColumnAfter':
+                        editor.chain().focus().addColumnAfter().run();
+                        break;
+                    case 'addRowAfter':
+                        editor.chain().focus().addRowAfter().run();
+                        break;
+                    case 'deleteTable':
+                        editor.chain().focus().deleteTable().run();
+                        break;
+                    case 'undo': editor.chain().focus().undo().run(); break;
+                    case 'redo': editor.chain().focus().redo().run(); break;
+                }
+            });
+        });
+
+        // Tab switching
+        document.querySelectorAll('.output-tabs button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.output-tabs button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentTab = btn.dataset.tab;
+                updateOutput();
+            });
+        });
+
+        // Copy button
+        document.getElementById('copy-btn').addEventListener('click', () => {
+            navigator.clipboard.writeText(document.getElementById('output').textContent);
+        });
+
+        // Modal functions
+        window.closeModal = function(id) {
+            document.getElementById(id).classList.remove('show');
+        };
+
+        window.insertImage = function() {
+            const url = document.getElementById('imageUrl').value;
+            const alt = document.getElementById('imageAlt').value;
+            if (url) {
+                window.tiptapEditor.chain().focus().setImage({ src: url, alt }).run();
+            }
+            closeModal('imageModal');
+            document.getElementById('imageUrl').value = '';
+            document.getElementById('imageAlt').value = '';
+        };
+
+        window.insertDiv = function() {
+            const type = document.getElementById('divType').value;
+            window.tiptapEditor.chain().focus().setDjotDiv({ class: type }).run();
+            closeModal('divModal');
+        };
+
+        // Link popover functions
+        let linkPopoverVisible = false;
+
+        function showLinkPopover() {
+            const popover = document.getElementById('linkPopover');
+            const attrs = editor.getAttributes('link');
+
+            if (!attrs.href) return;
+
+            const { view } = editor;
+            const { from } = view.state.selection;
+            const coords = view.coordsAtPos(from);
+            const editorRect = document.getElementById('editor').getBoundingClientRect();
+
+            popover.style.left = (coords.left - editorRect.left) + 'px';
+            popover.style.top = (coords.bottom - editorRect.top + 8) + 'px';
+
+            document.getElementById('linkEditUrl').value = attrs.href;
+
+            popover.classList.add('show');
+            linkPopoverVisible = true;
+
+            setTimeout(() => document.getElementById('linkEditUrl').focus(), 50);
+        }
+
+        window.closeLinkPopover = function() {
+            document.getElementById('linkPopover').classList.remove('show');
+            linkPopoverVisible = false;
+            editor.chain().focus().run();
+        };
+
+        window.updateLink = function() {
+            const url = document.getElementById('linkEditUrl').value.trim();
+            if (url) {
+                editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+            } else {
+                editor.chain().focus().extendMarkRange('link').unsetLink().run();
+            }
+            closeLinkPopover();
+        };
+
+        window.removeLink = function() {
+            editor.chain().focus().extendMarkRange('link').unsetLink().run();
+            closeLinkPopover();
+        };
+
+        window.openLinkInNewTab = function() {
+            const url = document.getElementById('linkEditUrl').value.trim();
+            if (url) {
+                window.open(url, '_blank');
+            }
+        };
+
+        document.getElementById('linkEditUrl').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                updateLink();
+            } else if (e.key === 'Escape') {
+                closeLinkPopover();
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            const popover = document.getElementById('linkPopover');
+            if (linkPopoverVisible && !popover.contains(e.target)) {
+                if (!e.target.closest('.tiptap a')) {
+                    closeLinkPopover();
+                }
+            }
+        });
+
+        document.getElementById('editor').addEventListener('click', (e) => {
+            const link = e.target.closest('a');
+            if (link && editor.isActive('link')) {
+                e.preventDefault();
+                showLinkPopover();
+            } else if (!e.target.closest('.link-popover')) {
+                closeLinkPopover();
+            }
+        });
+
+        // Initial render
+        updateOutput();
+        updateToolbarState();
+    </script>
+</body>
+</html>

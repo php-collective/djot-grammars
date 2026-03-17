@@ -181,3 +181,12 @@ Add styles for Djot-specific marks:
 }
 ```
 
+## Demo
+
+See `demo/index.html` for a full working example. Serve it with any HTTP server:
+
+```bash
+cd tiptap
+npx serve .
+# Open http://localhost:3000/demo/
+```
