@@ -8,11 +8,14 @@ Syntax highlighting grammars for the [Djot](https://djot.net) markup language.
 
 ### TextMate Grammar
 
+> **Note:** As of [Phiki v2.1.1](https://github.com/phikiphp/phiki/releases/tag/v2.1.1), the Djot grammar is bundled with Phiki.
+> For PHP projects, use Phiki directly - no separate grammar installation needed.
+> This file is kept for backwards compatibility with existing Shiki/Node.js projects.
+
 **Location:** `textmate/djot.tmLanguage.json`
 
 Works with:
 - [Shiki](https://shiki.style/) (VitePress, Astro, etc.)
-- [Phiki](https://github.com/phikiphp/phiki) (PHP, Torchlight Engine)
 - VS Code (via TextMate support)
 - TextMate and compatible editors
 - IntelliJ/PhpStorm (via [Djot plugin](https://plugins.jetbrains.com/plugin/18828-djot))
@@ -49,16 +52,12 @@ export default defineConfig({
 
 #### Usage with Phiki (PHP)
 
+As of Phiki v2.1.1, Djot is bundled - just use it directly:
+
 ```php
 use Phiki\Phiki;
-use Phiki\Environment\Environment;
 
-$grammarPath = __DIR__ . '/vendor/php-collective/djot-grammars/textmate/djot.tmLanguage.json';
-
-$environment = Environment::default();
-$environment->getGrammarRepository()->register('djot', $grammarPath);
-
-$phiki = new Phiki($environment);
+$phiki = new Phiki();
 $html = $phiki->codeToHtml($djotCode, 'djot', 'github-light');
 ```
 
@@ -232,9 +231,11 @@ Download the grammar files directly from this repository.
 | Type | Syntax highlighting | Syntax highlighting | Syntax highlighting | WYSIWYG editor | Syntax highlighting |
 | Rendering | Server/Client | Client | Client | Client | Server/Editor |
 | JS required | Depends | Yes | Yes | Yes | No |
-| Used by | Shiki, VS Code, Phiki | highlight.js | Prism.js | Tiptap/ProseMirror | Neovim, Helix |
+| Used by | Shiki, VS Code | highlight.js | Prism.js | Tiptap/ProseMirror | Neovim, Helix |
 | Themes | VS Code themes | 90+ | 8+ | Custom CSS | Editor themes |
 | Extensible | Limited | Some | Extensive | Yes | Yes |
+
+> **Note:** [Phiki](https://github.com/phikiphp/phiki) v2.1.1+ bundles the Djot grammar directly.
 
 ---
 
