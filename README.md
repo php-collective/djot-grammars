@@ -141,7 +141,7 @@ const editor = new Editor({
 - **Serializer** - Convert editor content to Djot markup
 - Tables, task lists, code blocks with language, images, links
 
-See [tiptap/README.md](tiptap/README.md) for full documentation.
+See [tiptap/README.md](tiptap/README.md) for full documentation. [Demo](https://sandbox.dereuromark.de/sandbox/djot/wysiwyg).
 
 ---
 
