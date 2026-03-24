@@ -134,9 +134,15 @@ export function serializeToDjot(doc) {
 
     function serializeDefinitionList(dl) {
         const children = dl.content || [];
+        let afterDescription = false;
         children.forEach(child => {
             if (child.type === 'definitionTerm') {
+                // Add blank line before term if we just finished a description
+                if (afterDescription) {
+                    output += '\n';
+                }
                 output += ': ' + serializeInline(child.content) + '\n';
+                afterDescription = false;
             } else if (child.type === 'definitionDescription') {
                 output += '\n';
                 (child.content || []).forEach(block => {
@@ -150,6 +156,7 @@ export function serializeToDjot(doc) {
                         });
                     }
                 });
+                afterDescription = true;
             }
         });
     }
