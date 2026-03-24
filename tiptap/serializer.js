@@ -117,6 +117,14 @@ export function serializeToDjot(doc) {
                 (node.content || []).forEach(child => serializeNode(child, depth));
                 output += ':::\n';
                 break;
+
+            case 'djotEmbed':
+                // Output the original source URL (YouTube, Vimeo, etc.)
+                const embedSrc = node.attrs?.src || '';
+                if (embedSrc) {
+                    output += embedSrc + '\n';
+                }
+                break;
         }
     }
 
