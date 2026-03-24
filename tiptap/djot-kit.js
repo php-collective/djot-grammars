@@ -14,6 +14,7 @@ import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import BulletList from '@tiptap/extension-bullet-list';
 import ListItem from '@tiptap/extension-list-item';
+import HardBreak from '@tiptap/extension-hard-break';
 
 import { DjotInsert } from './extensions/djot-insert.js';
 import { DjotDelete } from './extensions/djot-delete.js';
@@ -21,6 +22,8 @@ import { DjotDiv } from './extensions/djot-div.js';
 import { DjotSpan } from './extensions/djot-span.js';
 import { DjotFootnote } from './extensions/djot-footnote.js';
 import { DjotEmbed } from './extensions/djot-embed.js';
+import { DjotAbbreviation } from './extensions/djot-abbreviation.js';
+import { DjotDefinitionList, DjotDefinitionTerm, DjotDefinitionDescription } from './extensions/djot-definition-list.js';
 
 /**
  * DjotKit - A Tiptap extension bundle for Djot markup
@@ -32,6 +35,8 @@ import { DjotEmbed } from './extensions/djot-embed.js';
  * - DjotSpan: [text]{.class}
  * - DjotFootnote: [^label]
  * - DjotEmbed: video/iframe embeds
+ * - DjotAbbreviation: [ABBR]{abbr="expansion"}
+ * - DjotDefinitionList: : term with definition
  *
  * @example
  * ```js
@@ -87,8 +92,24 @@ export const DjotKit = Extension.create({
                 // Disable default lists - we add custom ones that handle task-list
                 bulletList: false,
                 listItem: false,
+                // Disable HardBreak, we add a custom one with visible indicator
+                hardBreak: false,
                 ...this.options.starterKit,
             }));
+        }
+
+        // Custom HardBreak with visible indicator (shows ↵ symbol)
+        if (this.options.hardBreak !== false) {
+            const CustomHardBreak = HardBreak.extend({
+                addNodeView() {
+                    return () => {
+                        const dom = document.createElement('span');
+                        dom.innerHTML = '<span class="hard-break">↵</span><br>';
+                        return { dom };
+                    };
+                },
+            });
+            extensions.push(CustomHardBreak.configure(this.options.hardBreak ?? {}));
         }
 
         // Custom CodeBlock that preserves data-language-raw for syntax highlighter options
@@ -304,6 +325,18 @@ export const DjotKit = Extension.create({
         // Embed node (preserves videos, oEmbed content)
         if (this.options.djotEmbed !== false) {
             extensions.push(DjotEmbed.configure(this.options.djotEmbed ?? {}));
+        }
+
+        // Abbreviation mark (maps to [ABBR]{abbr="expansion"})
+        if (this.options.djotAbbreviation !== false) {
+            extensions.push(DjotAbbreviation.configure(this.options.djotAbbreviation ?? {}));
+        }
+
+        // Definition list nodes (maps to : term with definition)
+        if (this.options.definitionList !== false) {
+            extensions.push(DjotDefinitionList.configure(this.options.definitionList ?? {}));
+            extensions.push(DjotDefinitionTerm.configure(this.options.definitionTerm ?? {}));
+            extensions.push(DjotDefinitionDescription.configure(this.options.definitionDescription ?? {}));
         }
 
         return extensions;
