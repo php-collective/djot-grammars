@@ -125,7 +125,33 @@ export function serializeToDjot(doc) {
                     output += embedSrc + '\n';
                 }
                 break;
+
+            case 'definitionList':
+                serializeDefinitionList(node);
+                break;
         }
+    }
+
+    function serializeDefinitionList(dl) {
+        const children = dl.content || [];
+        children.forEach(child => {
+            if (child.type === 'definitionTerm') {
+                output += ': ' + serializeInline(child.content) + '\n';
+            } else if (child.type === 'definitionDescription') {
+                output += '\n';
+                (child.content || []).forEach(block => {
+                    if (block.type === 'paragraph') {
+                        output += '  ' + serializeInline(block.content) + '\n';
+                    } else {
+                        // For other block types, serialize with indentation
+                        const blockText = serializeNodeToString(block);
+                        blockText.split('\n').filter(l => l).forEach(line => {
+                            output += '  ' + line + '\n';
+                        });
+                    }
+                });
+            }
+        });
     }
 
     function serializeTable(table) {
@@ -191,6 +217,7 @@ export function serializeToDjot(doc) {
                 const hasStrike = marks.some(m => m.type === 'strike');
                 const link = marks.find(m => m.type === 'link');
                 const djotSpan = marks.find(m => m.type === 'djotSpan');
+                const abbr = marks.find(m => m.type === 'djotAbbreviation');
 
                 // Apply marks from innermost to outermost
                 let t = text;
@@ -205,6 +232,7 @@ export function serializeToDjot(doc) {
                 if (hasBold) t = '*' + t + '*';
                 if (link) t = '[' + t + '](' + link.attrs.href + ')';
                 if (djotSpan) t = '[' + t + ']{.' + (djotSpan.attrs?.class || 'class') + '}';
+                if (abbr) t = '[' + t + ']{abbr="' + (abbr.attrs?.title || '') + '"}';
 
                 result += t;
             } else if (node.type === 'hardBreak') {
