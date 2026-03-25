@@ -75,14 +75,18 @@ export function serializeToDjot(doc) {
                 break;
 
             case 'blockquote':
-                const bqLines = [];
-                (node.content || []).forEach(child => {
+                // Serialize each child block with proper blank line separation
+                (node.content || []).forEach((child, i) => {
                     const childText = serializeNodeToString(child);
-                    childText.split('\n').filter(l => l).forEach(line => {
-                        bqLines.push('> ' + line);
+                    // Prefix each line with >
+                    childText.split('\n').forEach(line => {
+                        output += '> ' + line + '\n';
                     });
+                    // Add blank line between blocks (> followed by empty line)
+                    if (i < (node.content || []).length - 1) {
+                        output += '>\n';
+                    }
                 });
-                output += bqLines.join('\n') + '\n';
                 break;
 
             case 'codeBlock':
@@ -114,7 +118,19 @@ export function serializeToDjot(doc) {
             case 'djotDiv':
                 const divClass = node.attrs?.class || '';
                 output += ':::' + (divClass ? ' ' + divClass : '') + '\n';
-                (node.content || []).forEach(child => serializeNode(child, depth));
+                // Serialize children with blank line separation (like doc level)
+                (node.content || []).forEach((child, i) => {
+                    serializeNode(child, depth);
+                    if (i < (node.content || []).length - 1) {
+                        const curr = child.type;
+                        const next = node.content[i + 1]?.type;
+                        // Don't add extra blank line between consecutive lists
+                        if (!['bulletList', 'orderedList', 'taskList'].includes(curr) ||
+                            !['bulletList', 'orderedList', 'taskList'].includes(next)) {
+                            output += '\n';
+                        }
+                    }
+                });
                 output += ':::\n';
                 break;
 
