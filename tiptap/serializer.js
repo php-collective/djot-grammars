@@ -33,9 +33,9 @@ export function serializeToDjot(doc) {
                     if (i < (node.content || []).length - 1) {
                         const curr = child.type;
                         const next = node.content[i + 1]?.type;
-                        // Don't add extra blank line between list items
-                        if (!['bulletList', 'orderedList', 'taskList'].includes(curr) ||
-                            !['bulletList', 'orderedList', 'taskList'].includes(next)) {
+                        // Only skip blank line between consecutive same-type lists
+                        const bothSameList = curr === next && ['bulletList', 'orderedList', 'taskList'].includes(curr);
+                        if (!bothSameList) {
                             output += '\n';
                         }
                     }
@@ -127,9 +127,9 @@ export function serializeToDjot(doc) {
                     if (i < (node.content || []).length - 1) {
                         const curr = child.type;
                         const next = node.content[i + 1]?.type;
-                        // Don't add extra blank line between consecutive lists
-                        if (!['bulletList', 'orderedList', 'taskList'].includes(curr) ||
-                            !['bulletList', 'orderedList', 'taskList'].includes(next)) {
+                        // Only skip blank line between consecutive same-type lists
+                        const bothSameList = curr === next && ['bulletList', 'orderedList', 'taskList'].includes(curr);
+                        if (!bothSameList) {
                             output += '\n';
                         }
                     }
