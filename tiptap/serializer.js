@@ -51,26 +51,29 @@ export function serializeToDjot(doc) {
                 break;
 
             case 'bulletList':
-                (node.content || []).forEach(item => {
-                    output += '  '.repeat(depth) + '- ';
-                    serializeListItem(item, depth);
-                });
-                break;
-
             case 'orderedList':
-                let num = node.attrs?.start || 1;
-                (node.content || []).forEach(item => {
-                    output += '  '.repeat(depth) + num + '. ';
-                    serializeListItem(item, depth);
-                    num++;
-                });
-                break;
-
             case 'taskList':
-                (node.content || []).forEach(item => {
-                    const checked = item.attrs?.checked ? 'x' : ' ';
-                    output += '  '.repeat(depth) + '- [' + checked + '] ';
+                // Check if list is "loose" (any item has multiple blocks)
+                const isLoose = (node.content || []).some(item =>
+                    (item.content || []).length > 1
+                );
+                let num = node.attrs?.start || 1;
+                (node.content || []).forEach((item, i) => {
+                    const indent = '  '.repeat(depth);
+                    if (node.type === 'bulletList') {
+                        output += indent + '- ';
+                    } else if (node.type === 'orderedList') {
+                        output += indent + num + '. ';
+                        num++;
+                    } else if (node.type === 'taskList') {
+                        const checked = item.attrs?.checked ? 'x' : ' ';
+                        output += indent + '- [' + checked + '] ';
+                    }
                     serializeListItem(item, depth);
+                    // Add blank line between items in loose lists
+                    if (isLoose && i < (node.content || []).length - 1) {
+                        output += '\n';
+                    }
                 });
                 break;
 
@@ -210,11 +213,19 @@ export function serializeToDjot(doc) {
 
     function serializeListItem(item, depth) {
         const content = item.content || [];
-        content.forEach((child) => {
+        content.forEach((child, i) => {
             if (child.type === 'paragraph') {
                 output += serializeInline(child.content) + '\n';
+                // Add blank line after paragraph if followed by more content (nested list, etc.)
+                if (i < content.length - 1) {
+                    output += '\n';
+                }
             } else if (['bulletList', 'orderedList', 'taskList'].includes(child.type)) {
                 serializeNode(child, depth + 1);
+                // Add blank line after nested list if followed by more content
+                if (i < content.length - 1) {
+                    output += '\n';
+                }
             }
         });
     }
