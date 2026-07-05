@@ -63,6 +63,12 @@ check('double quote in a title is backslash-escaped',
     + '<p class="admonition-title">Say "hi"</p><p>Body.</p></div>',
     '{title="Say \\"hi\\""}\n::: admonition warning\nBody.\n:::');
 
+check('the editor DOM shape (visible title + body wrapper) re-parses without duplication',
+    '<div class="djot-div admonition warning" data-djot-title="Watch Out!">'
+    + '<p class="admonition-title" contenteditable="false">Watch Out!</p>'
+    + '<div class="djot-div-body"><p>Body.</p></div></div>',
+    '{title="Watch Out!"}\n::: admonition warning\nBody.\n:::');
+
 check('explicitly empty title round-trips (suppresses the default title text)',
     '<div class="admonition note" role="note" data-djot-admonition-type="note" data-djot-admonition-title="">'
     + '<p class="admonition-title"></p><p>Body.</p></div>',
