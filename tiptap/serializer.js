@@ -120,6 +120,19 @@ export function serializeToDjot(doc) {
 
             case 'djotDiv':
                 const divClass = node.attrs?.class || '';
+                // Admonition title, captured from the rendered admonition-title
+                // paragraph (or round-trip data attribute) by the DjotDiv node.
+                // Djot carries it as a block attribute line before the opener.
+                // Attribute values support backslash escapes ({title="Say \"hi\""}),
+                // and an empty title is meaningful ({title=""} renders an empty
+                // title paragraph instead of the default one), so only null is
+                // skipped.
+                const divTitle = node.attrs?.title;
+                if (divTitle != null) {
+                    output += '{title="'
+                        + String(divTitle).replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+                        + '"}\n';
+                }
                 output += ':::' + (divClass ? ' ' + divClass : '') + '\n';
                 // Serialize children with blank line separation (like doc level)
                 (node.content || []).forEach((child, i) => {
