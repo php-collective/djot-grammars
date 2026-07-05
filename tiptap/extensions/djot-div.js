@@ -18,12 +18,27 @@ function findTitleChild(element) {
  * captured as the `title` attribute instead (else it would duplicate into the
  * body and the {title="..."} attribute would be lost on serialization).
  */
+/** First direct child carrying the djot-div-body class (own editor DOM). */
+function findBodyChild(element) {
+    for (const child of element.children || []) {
+        if (child.classList && child.classList.contains('djot-div-body')) {
+            return child;
+        }
+    }
+    return null;
+}
+
 function contentWithoutTitle(element) {
-    if (!findTitleChild(element)) {
-        return element;
+    const body = findBodyChild(element);
+    if (body) {
+        return body;
     }
     const clone = element.cloneNode(true);
-    findTitleChild(clone).remove();
+    const title = findTitleChild(clone);
+    if (!title) {
+        return element;
+    }
+    title.remove();
     return clone;
 }
 
@@ -135,7 +150,20 @@ export const DjotDiv = Node.create({
         if (HTMLAttributes['data-djot-class']) {
             classes.push(HTMLAttributes['data-djot-class']);
         }
-        return ['div', mergeAttributes(HTMLAttributes, { class: classes.join(' ') }), 0];
+        const attrs = mergeAttributes(HTMLAttributes, { class: classes.join(' ') });
+        const title = HTMLAttributes['data-djot-title'];
+        if (title === undefined) {
+            return ['div', attrs, 0];
+        }
+        // Keep the captured title VISIBLE in the editor: a non-editable title
+        // element plus a body wrapper carrying the content hole (ProseMirror
+        // requires the hole to be its parent's only child). The title itself
+        // is edited in source mode; contentWithoutTitle() reads content from
+        // .djot-div-body so this shape re-parses without duplication.
+        return ['div', attrs,
+            ['p', { class: 'admonition-title', contenteditable: 'false' }, title],
+            ['div', { class: 'djot-div-body' }, 0],
+        ];
     },
 
     addCommands() {
