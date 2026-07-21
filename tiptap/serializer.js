@@ -226,19 +226,35 @@ export function serializeToDjot(doc) {
 
     function serializeListItem(item, depth) {
         const content = item.content || [];
+        // Content column of this item: the marker (`- ` / `1. ` / `- [ ] `)
+        // was already emitted by the caller, so its lead line is positioned.
+        // Every FOLLOWING block must be indented to this column to stay in the
+        // item; a block left at column 0 would dedent out of the list, and a
+        // block type the old code did not recognize (code, quote, div, table)
+        // was dropped entirely.
+        const contentIndent = '  '.repeat(depth + 1);
         content.forEach((child, i) => {
-            if (child.type === 'paragraph') {
+            if (i === 0 && child.type === 'paragraph') {
+                // Lead paragraph sits on the marker line already emitted.
                 output += serializeInline(child.content) + '\n';
-                // Add blank line after paragraph if followed by more content (nested list, etc.)
-                if (i < content.length - 1) {
-                    output += '\n';
-                }
             } else if (['bulletList', 'orderedList', 'taskList'].includes(child.type)) {
+                // Nested lists carry their own marker indentation via depth.
                 serializeNode(child, depth + 1);
-                // Add blank line after nested list if followed by more content
-                if (i < content.length - 1) {
-                    output += '\n';
-                }
+            } else {
+                // Any other block (a second+ paragraph, code block, quote,
+                // div, table, ...) is serialized standalone and indented to
+                // the content column so djot keeps it inside the item.
+                const blockText = serializeNodeToString(child);
+                blockText.split('\n').forEach(line => {
+                    output += (line ? contentIndent + line : '') + '\n';
+                });
+            }
+            // A list item holding more than one block is loose: separate the
+            // blocks with a blank line so djot parses them as distinct block
+            // children (a bare list marker, code fence or quote needs the
+            // blank line to open as its own block rather than fold in).
+            if (i < content.length - 1) {
+                output += '\n';
             }
         });
     }

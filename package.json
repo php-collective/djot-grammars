@@ -4,7 +4,7 @@
   "description": "Syntax highlighting grammars for the Djot markup language",
   "main": "index.js",
   "scripts": {
-    "test": "node tests/grammar-test.js && node tests/parse-test.mjs",
+    "test": "node tests/grammar-test.js && node tests/parse-test.mjs && node tests/serialize-test.mjs",
     "test:install": "npm install --save-dev vscode-textmate vscode-oniguruma highlight.js prismjs"
   },
   "repository": {
